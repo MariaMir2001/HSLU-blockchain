@@ -1,0 +1,10 @@
+# Node / Hardhat / generierte Dateien
+**/node_modules/
+**/artifacts/
+**/cache/
+**/types/
+
+# Mac/Windows-Kleinkram
+.DS_Store
+__MACOSX/
+._*
