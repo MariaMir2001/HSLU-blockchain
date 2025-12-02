@@ -871,6 +871,44 @@
       "artifacts": [
         "MyToken"
       ]
+    },
+    "/usr/src/app/contracts/ProjectRegistry.sol": {
+      "lastModificationDate": 1764689367458,
+      "contentHash": "a229389154d714776b475f555a0dc39d",
+      "sourceName": "contracts/ProjectRegistry.sol",
+      "solcConfig": {
+        "version": "0.8.20",
+        "settings": {
+          "evmVersion": "paris",
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.19"
+      ],
+      "artifacts": [
+        "FundingPool",
+        "ProjectRegistry",
+        "ReentrancyGuard"
+      ]
     }
   }
 }

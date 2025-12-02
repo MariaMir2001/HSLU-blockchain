@@ -26,6 +26,18 @@ async function main() {
     const didRegistry = await DIDRegistry.deploy();
     await didRegistry.deployed();
     console.log("DIDRegisstry deployed to:", didRegistry.address);
+
+    // Deploy ProjectRegistry
+    const ProjectRegistry = await ethers.getContractFactory("ProjectRegistry");
+    const projectRegistry = await ProjectRegistry.deploy();
+    await projectRegistry.deployed();
+    console.log("ProjectRegistry deployed to:", projectRegistry.address);
+
+      // Deploy ProjectRegistry
+    const FundingPool = await ethers.getContractFactory("FundingPool");
+    const fundingPool = await FundingPool.deploy(projectRegistry.address);
+    await fundingPool.deployed();
+    console.log("FundingPool deployed to:", fundingPool.address);
 }
 
 main()

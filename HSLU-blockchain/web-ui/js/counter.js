@@ -1,4 +1,4 @@
-const contractAddress = "0x959922bE3CAee4b8Cd9a407cc3ac1C251C2007B1"; // Replace with the deployed contract address
+const contractAddress = "0x67d269191c92Caf3cD7723F116c85e6E9bf55933"; // Replace with the deployed contract address
 const abi = [
 	{
 		"inputs": [],

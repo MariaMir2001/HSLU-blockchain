@@ -172,7 +172,7 @@ contract FundingPool is ReentrancyGuard {
     address public owner;
     ProjectRegistry public registry;
 
-    uint256 public poolBalance; // wei retained for distribution
+    uint256 public poolBalance;//:)wei retained for distribution.
 
     // Fee recipients and basis points (parts per 10_000)
     address public feeRecipientTreasury;

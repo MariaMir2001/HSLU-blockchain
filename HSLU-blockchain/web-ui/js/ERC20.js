@@ -468,7 +468,8 @@ async function performTransaction(method, params) {
     }
 
     try {
-        await sendTransaction(contractAddress, abi, method, params, selectedWallet);
+        
+		await sendTransaction(contractAddress, abi, method, params, selectedWallet);
         await updateBalance();
     } catch (error) {
         console.error(`Error performing ${method}:`, error);
