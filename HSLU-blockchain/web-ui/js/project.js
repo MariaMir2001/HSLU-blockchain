@@ -856,3 +856,7 @@ window.onload = async () => {
     if (!selectedWallet) showWalletPopup();
     await updatePoolBalance();
 };
+
+// ------------------ IPFS ------------------
+
+
