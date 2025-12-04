@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VCM Funding Prototype</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="js/web3.min.js"></script>
+    <!--<script src="js/generic-wallet.js"></script>-->
+</head>
+<body>
+  <div class="container">
+    <h1>VCM Funding Prototype</h1>
+
+    <!-- ===== Create Project ===== -->
+    <h2>Create Project</h2>
+    <label>Project Name</label>
+    <input id="projName" type="text" placeholder="My Solar Project">
+
+    <label>Payout Address</label>
+    <input id="projPayout" type="text" placeholder="0x...">
+
+    <label>IPFS Hash</label>
+    <input id="projIpfs" type="text" placeholder="Qm...">
+
+    <label>SSI DID Hash</label>
+    <input id="projDid" type="text" placeholder="did:example:...">
+
+    <button onclick="createProject()">Create Project</button>
+
+    <hr>
+
+    <!-- ===== Approve Project ===== -->
+    <h2>Approve Project (Verifier)</h2>
+    <label>Project ID</label>
+    <input id="approveId" type="number" min="1" placeholder="1">
+    <button onclick="approveProject()">Approve Project</button>
+
+    <hr>
+
+    <!-- ===== Deposit to Funding Pool ===== -->
+    <h2>Deposit to Funding Pool</h2>
+    <label>Amount (in ETH)</label>
+    <input id="depositAmount" type="text" placeholder="0.5">
+    <button onclick="deposit()">Deposit</button>
+
+    <hr>
+
+    <!-- ===== Distribute Quarter ===== -->
+    <h2>Distribute Quarter</h2>
+    <button onclick="distribute()">Distribute to Published Projects</button>
+  </div>
+
+  <script src="js/vcm.js"></script>
+</body>
+
+</html>
