@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Registry & FundingPool</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="js/web3.min.js"></script>
+    <script src="js/generic-wallet.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Project Registry & FundingPool</h1>
+        <button id="change_address">Change Wallet</button>
+        <hr>
+        <pre id="return_message"></pre>
+
+        <div class="form-group">
+        
+        <input type="file" id="uploadFile">
+        
+        </div>
+        <div id="output"></div>
+        
+        <input type="text" id="project_name" placeholder="Project Name">
+        <input type="text" id="project_payout" placeholder="Payout Address">
+        <input type="text" id="project_ipfs" placeholder="">
+        <input type="text" id="project_ssi" placeholder="SSI DID Hash">
+        <button id="create_project">Create Project</button>
+
+        <h2>Add Verifier</h2>
+        <input type="text" id="add_verifier_id" placeholder="Verifier Address">
+        <button id="add_verifier">Add</button>
+        
+        
+        <h2>Approve Project</h2>
+        <input type="number" id="approve_project_id" placeholder="Project ID">
+        <button id="approve_project">Approve</button>
+
+        <h2>End Project (Owner)</h2>
+        <input type="number" id="end_project_id" placeholder="Project ID">
+        <button id="end_project">End Project</button>
+
+        <h2>Get Project Info</h2>
+        <input type="number" id="get_project_id" placeholder="Project ID">
+        <button id="get_project">Get Project</button>
+        <button id="count_projects">Count Projects</button>
+        <pre id="project_info"></pre>
+
+        <h2>FundingPool</h2>
+        <input type="number" id="deposit_amount" placeholder="ETH Amount">
+        <button id="deposit">Deposit</button>
+        <button id="simulate_distribution">Simulate Distribution</button>
+        
+        <p>Pool Balance: <span id="pool_balance">0</span> ETH</p>
+    </div>
+
+    <!-- Wallet popup -->
+    <div id="wallet-popup" class="popup">
+        <div class="popup-content">
+            <h2>Select Wallet</h2>
+            <select id="wallet-select" size="5"></select>
+            <button id="select-wallet">Select</button>
+        </div>
+    </div>
+ <script src="js/web3.min.js"></script>
+    <script src="js/generic-wallet.js"></script>
+    <script src="js/project.js"></script>
+    <script src="https://unpkg.com/ipfs-http-client/dist/index.min.js"></script>
+    
+</body>
+</html>

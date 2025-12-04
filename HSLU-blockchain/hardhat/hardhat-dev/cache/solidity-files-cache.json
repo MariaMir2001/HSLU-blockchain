@@ -2,8 +2,8 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "/usr/src/app/contracts/Counter.sol": {
-      "lastModificationDate": 1763388005437,
-      "contentHash": "2f7edce3841da6fc3351aff51b11d425",
+      "lastModificationDate": 1764148547482,
+      "contentHash": "5fdddab52c7aa0658b568be373560c9e",
       "sourceName": "contracts/Counter.sol",
       "solcConfig": {
         "version": "0.8.20",
@@ -38,8 +38,8 @@
       ]
     },
     "/usr/src/app/contracts/DIDRegistry.sol": {
-      "lastModificationDate": 1763388005453,
-      "contentHash": "126cefcdaba8e16fce05af9f1c173be3",
+      "lastModificationDate": 1764148547482,
+      "contentHash": "7727581e1ef276442d8eeb6bbe6eedc7",
       "sourceName": "contracts/DIDRegistry.sol",
       "solcConfig": {
         "version": "0.8.20",
@@ -74,8 +74,8 @@
       ]
     },
     "/usr/src/app/contracts/MyNFT.sol": {
-      "lastModificationDate": 1763388005453,
-      "contentHash": "97aa2cee71d8c3f6e39a4102124776f2",
+      "lastModificationDate": 1764148547480,
+      "contentHash": "ecc5f4cad0dd4d1a8cde9d5aaa288cf6",
       "sourceName": "contracts/MyNFT.sol",
       "solcConfig": {
         "version": "0.8.20",
@@ -834,8 +834,8 @@
       ]
     },
     "/usr/src/app/contracts/MyToken.sol": {
-      "lastModificationDate": 1763388005437,
-      "contentHash": "550a12efe4e202d024dbfae68bdcbe75",
+      "lastModificationDate": 1764148547479,
+      "contentHash": "10eb9419716c9d2886480b360ca57d6a",
       "sourceName": "contracts/MyToken.sol",
       "solcConfig": {
         "version": "0.8.20",
@@ -870,6 +870,44 @@
       ],
       "artifacts": [
         "MyToken"
+      ]
+    },
+    "/usr/src/app/contracts/ProjectRegistry.sol": {
+      "lastModificationDate": 1764689367458,
+      "contentHash": "a229389154d714776b475f555a0dc39d",
+      "sourceName": "contracts/ProjectRegistry.sol",
+      "solcConfig": {
+        "version": "0.8.20",
+        "settings": {
+          "evmVersion": "paris",
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.19"
+      ],
+      "artifacts": [
+        "FundingPool",
+        "ProjectRegistry",
+        "ReentrancyGuard"
       ]
     }
   }
