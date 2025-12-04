@@ -15,18 +15,16 @@
         <hr>
         <pre id="return_message"></pre>
 
-        <h2>Create Project</h2>
-        <h3>1. Get CID</h3>
         <div class="form-group">
-        <label for="uploadFile">Upload File to IPFS:</label>
+        
         <input type="file" id="uploadFile">
-        <button onclick="uploadFile()">Upload</button>
+        
         </div>
         <div id="output"></div>
-        <h3>2. Create Project</h3>
+        
         <input type="text" id="project_name" placeholder="Project Name">
         <input type="text" id="project_payout" placeholder="Payout Address">
-        <input type="text" id="project_ipfs" placeholder="IPFS Hash">
+        <input type="text" id="project_ipfs" placeholder="">
         <input type="text" id="project_ssi" placeholder="SSI DID Hash">
         <button id="create_project">Create Project</button>
 
@@ -46,6 +44,7 @@
         <h2>Get Project Info</h2>
         <input type="number" id="get_project_id" placeholder="Project ID">
         <button id="get_project">Get Project</button>
+        <button id="count_projects">Count Projects</button>
         <pre id="project_info"></pre>
 
         <h2>FundingPool</h2>
@@ -64,38 +63,10 @@
             <button id="select-wallet">Select</button>
         </div>
     </div>
-
+ <script src="js/web3.min.js"></script>
+    <script src="js/generic-wallet.js"></script>
     <script src="js/project.js"></script>
     <script src="https://unpkg.com/ipfs-http-client/dist/index.min.js"></script>
-    <script>
     
-    const ipfs = window.IpfsHttpClient.create({ host: 'localhost', port: '5001', protocol: 'http' });
-async function uploadFile() {
-
-  const fileInput = document.getElementById('uploadFile');
-  const file = fileInput.files[0];
-
-  if (!file) {
-    alert('Please select a file to upload.');
-    return;
-  }
-
-  const reader = new FileReader();
-  reader.onload = async function(event) {
-    const fileContent = new Uint8Array(event.target.result);
-    try {
-      const result = await ipfs.add(fileContent);
-      const cid = result.cid.toString();
-      document.getElementById('output').innerText = `File uploaded successfully. CID: ${cid}`;
-    } catch (error) {
-      console.error('Error uploading file:', error);
-      document.getElementById('output').innerText = 'Error uploading file. Check console for details.';
-    }
-  };
-  reader.readAsArrayBuffer(file);
-}
-
-    
-  </script>
 </body>
 </html>
