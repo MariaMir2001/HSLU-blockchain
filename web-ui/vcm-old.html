@@ -1,0 +1,50 @@
+<body>
+  <div class="container">
+    <h1>VCM Funding Prototype</h1>
+
+    <!-- ===== Owner View ===== -->
+    <h2>Owner View (accounts[0])</h2>
+    <p>Hier tut der Eigentümer einmalig die Verifier setzen.</p>
+    <button onclick="setupRoles()">Setup Roles (add verifier)</button>
+
+    <hr>
+
+    <!-- ===== Project Creator View ===== -->
+    <h2>Project Creator View (accounts[2])</h2>
+    <label>Project Name</label>
+    <input id="projName" type="text" placeholder="My Solar Project">
+
+    <label>Payout Address</label>
+    <input id="projPayout" type="text" placeholder="0x... (z.B. accounts[3])">
+
+    <label>IPFS Hash</label>
+    <input id="projIpfs" type="text" placeholder="Qm...">
+
+    <label>SSI DID Hash</label>
+    <input id="projDid" type="text" placeholder="did:example:...">
+
+    <button onclick="createProject()">Create Project</button>
+
+    <hr>
+
+    <!-- ===== Verifier View ===== -->
+    <h2>Verifier View (accounts[1])</h2>
+    <label>Project ID to approve</label>
+    <input id="approveId" type="number" min="1" placeholder="1">
+    <button onclick="approveProject()">Approve Project</button>
+
+    <hr>
+
+    <!-- ===== Investor View ===== -->
+    <h2>Investor View (accounts[3])</h2>
+    <label>Deposit amount (ETH)</label>
+    <input id="depositAmount" type="text" placeholder="1.0">
+    <button onclick="deposit()">Deposit</button>
+
+    <br><br>
+    <button onclick="distribute()">Distribute Quarter</button>
+  </div>
+
+  <script src="js/web3.min.js"></script>
+  <script src="js/vcm.js"></script>
+</body>

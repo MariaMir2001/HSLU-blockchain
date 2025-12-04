@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Owner Dashboard – VCM</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="js/web3.min.js"></script>
+  <script src="js/vcm.js" defer></script>
+</head>
+<body class="bg-light">
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">VCM Prototype</a>
+    <div class="navbar-nav">
+      <a class="nav-link active" href="owner.html">Owner</a>
+      <a class="nav-link" href="creator.html">Project Creator</a>
+      <a class="nav-link" href="verifier.html">Verifier</a>
+      <a class="nav-link" href="investor.html">Investor</a>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-lg-6">
+      <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+          <h4 class="mb-0">Owner Dashboard</h4>
+          <small>Simuliert: Hardhat accounts[0]</small>
+        </div>
+        <div class="card-body">
+
+          <h5 class="card-title">1. Verifier hinzufügen</h5>
+          <div class="mb-3">
+            <label for="ownerVerifierAddress" class="form-label">Verifier Address</label>
+            <input id="ownerVerifierAddress" type="text" class="form-control" placeholder="0x...">
+          </div>
+          <button class="btn btn-primary w-100 mb-4" onclick="ownerAddVerifier()">
+            Add Verifier
+          </button>
+
+          <h5 class="card-title">2. Required Approvals</h5>
+          <div class="mb-3">
+            <label for="ownerRequiredApprovals" class="form-label">Number of approvals</label>
+            <input id="ownerRequiredApprovals" type="number" min="1" class="form-control" value="1">
+          </div>
+          <button class="btn btn-secondary w-100 mb-4" onclick="ownerSetRequiredApprovals()">
+            Set Required Approvals
+          </button>
+
+          <h5 class="card-title">3. Quartals-Verteilung</h5>
+          <p class="small text-muted">Verteilt den aktuellen Pool-Balance anteilig an alle veröffentlichten Projekte.</p>
+          <button class="btn btn-success w-100" onclick="ownerDistribute()">
+            Simulate Quarter Distribution
+          </button>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Bootstrap JS Bundle (optional, für Navbar etc.) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

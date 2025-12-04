@@ -689,91 +689,171 @@ const fundingPoolAbi = [     {
       "type": "receive"
     } ];
 
+// Adressen hast du schon:
+/// const registryAddress = "...";
+/// const fundingPoolAddress = "...";
+/// const registryAbi = [ ... ];
+/// const fundingPoolAbi = [ ... ];
+
+// 1. Verbindung & Contract-Objekte
 const web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
 
 const registry = new web3.eth.Contract(registryAbi, registryAddress);
 const pool     = new web3.eth.Contract(fundingPoolAbi, fundingPoolAddress);
 
+// 2. Rollen (Hardhat-Accounts simulieren die Stakeholder)
+let accounts;
+let owner, verifier, creator, investor;
 
+async function loadAccounts() {
+  if (!accounts) {
+    accounts = await web3.eth.getAccounts();
+    owner    = accounts[0];  // Owner des Systems
+    verifier = accounts[1];  // Prüfer
+    creator  = accounts[2];  // Projekt-Ersteller
+    investor = accounts[3];  // Investor
+    console.log("Roles:", { owner, verifier, creator, investor });
+  }
+}
 
-async function createProject() {
-  const accounts = await web3.eth.getAccounts();
-  const from = accounts[0]; // Hardhat Account 0
+/* ---------- OWNER-FUNKTIONEN ---------- */
 
-  const name = document.getElementById("projName").value;
-  const payout = document.getElementById("projPayout").value;
-  const ipfs = document.getElementById("projIpfs").value;
-  const did = document.getElementById("projDid").value;
+// Owner: Verifier setzen
+async function ownerAddVerifier() {
+  await loadAccounts();
+  const addr = document.getElementById("ownerVerifierAddress").value.trim();
+  if (!addr) { alert("Bitte eine Verifier-Adresse eingeben."); return; }
+
+  try {
+    const already = await registry.methods.isVerifier(addr).call();
+    if (already) {
+      alert("Adresse ist bereits Verifier.");
+      return;
+    }
+    const tx = await registry.methods
+      .addVerifier(addr)
+      .send({ from: owner });
+
+    console.log("Verifier added:", tx);
+    alert("Verifier wurde gesetzt.");
+  } catch (err) {
+    console.error("Error in ownerAddVerifier:", err);
+    alert("Fehler beim Setzen des Verifiers (siehe Konsole).");
+  }
+}
+
+// Owner: Anzahl benötigter Approvals setzen
+async function ownerSetRequiredApprovals() {
+  await loadAccounts();
+  const nStr = document.getElementById("ownerRequiredApprovals").value.trim();
+  if (!nStr) { alert("Bitte eine Zahl eingeben."); return; }
+  const n = parseInt(nStr, 10);
+  if (n <= 0) { alert("Approvals müssen > 0 sein."); return; }
+
+  try {
+    const tx = await registry.methods
+      .setRequiredApprovals(n)
+      .send({ from: owner });
+
+    console.log("Required approvals set:", tx);
+    alert("Required approvals aktualisiert.");
+  } catch (err) {
+    console.error("Error in ownerSetRequiredApprovals:", err);
+    alert("Fehler beim Setzen (siehe Konsole).");
+  }
+}
+
+// Owner: Quartalsverteilung auslösen
+async function ownerDistribute() {
+  await loadAccounts();
+  try {
+    const tx = await pool.methods
+      .simulateQuarterDistribute()
+      .send({ from: owner });
+
+    console.log("Distribution:", tx);
+    alert("Verteilung durchgeführt.");
+  } catch (err) {
+    console.error("Error in ownerDistribute:", err);
+    alert("Fehler bei der Verteilung (siehe Konsole).");
+  }
+}
+
+/* ---------- CREATOR-FUNKTION ---------- */
+
+// Projekt-Ersteller: Projekt anlegen
+async function creatorCreateProject() {
+  await loadAccounts();
+
+  const name   = document.getElementById("projName").value.trim();
+  const payout = document.getElementById("projPayout").value.trim();
+  const ipfs   = document.getElementById("projIpfs").value.trim();
+  const did    = document.getElementById("projDid").value.trim();
+
+  if (!name || !payout || !ipfs || !did) {
+    alert("Bitte alle Felder ausfüllen.");
+    return;
+  }
 
   try {
     const tx = await registry.methods
       .createProject(name, payout, ipfs, did)
-      .send({ from });
+      .send({ from: creator });
 
     console.log("Project created:", tx);
-    alert("Project created! Tx hash: " + tx.transactionHash);
+    alert("Projekt erstellt! Tx: " + tx.transactionHash);
   } catch (err) {
     console.error("Error creating project:", err);
-    alert("Error creating project (see console).");
+    alert("Fehler beim Erstellen (siehe Konsole).");
   }
 }
 
+/* ---------- VERIFIER-FUNKTION ---------- */
 
-async function approveProject() {
-  const accounts = await web3.eth.getAccounts();
-  const from = accounts[0]; // this account must be a verifier!
+// Verifier: Projekt approven
+async function verifierApproveProject() {
+  await loadAccounts();
 
-  const id = document.getElementById("approveId").value;
+  const idStr = document.getElementById("verifierProjectId").value.trim();
+  if (!idStr) { alert("Bitte eine Projekt-ID eingeben."); return; }
+  const id = parseInt(idStr, 10);
 
   try {
     const tx = await registry.methods
       .approveProject(id)
-      .send({ from });
+      .send({ from: verifier });
 
     console.log("Project approved:", tx);
-    alert("Project approved!");
+    alert("Projekt genehmigt.");
   } catch (err) {
     console.error("Error approving project:", err);
-    alert("Error approving project (see console).");
+    alert("Fehler beim Approve (siehe Konsole).");
   }
 }
 
-async function deposit() {
-  const accounts = await web3.eth.getAccounts();
-  const from = accounts[0];
+/* ---------- INVESTOR-FUNKTION ---------- */
 
-  const amountEth = document.getElementById("depositAmount").value;
-  const valueWei = web3.utils.toWei(amountEth, "ether");
+// Investor: Deposit in den FundingPool
+async function investorDeposit() {
+  await loadAccounts();
+
+  const amountStr = document.getElementById("investorDepositAmount").value.trim();
+  if (!amountStr) { alert("Bitte einen Betrag eingeben."); return; }
+  const valueWei = web3.utils.toWei(amountStr, "ether");
 
   try {
     const tx = await pool.methods
       .deposit()
-      .send({ from, value: valueWei });
+      .send({ from: investor, value: valueWei });
 
-    console.log("Deposit done:", tx);
-    alert("Deposit successful!");
+    console.log("Deposit:", tx);
+    alert("Deposit erfolgreich.");
   } catch (err) {
     console.error("Error depositing:", err);
-    alert("Error depositing (see console).");
+    alert("Fehler beim Deposit (siehe Konsole).");
   }
 }
 
-async function distribute() {
-  const accounts = await web3.eth.getAccounts();
-  const from = accounts[0]; // owner of the pool
-
-  try {
-    const tx = await pool.methods
-      .simulateQuarterDistribute()
-      .send({ from });
-
-    console.log("Distribution done:", tx);
-    alert("Distribution successful!");
-  } catch (err) {
-    console.error("Error distributing:", err);
-    alert("Error distributing (see console).");
-  }
-}
 
 
 
