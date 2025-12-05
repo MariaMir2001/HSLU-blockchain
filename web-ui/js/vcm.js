@@ -812,44 +812,46 @@ async function creatorCreateProject() {
       projectCreator:  from
     };
 
-    // 3. Credential beim Issuer anfordern
-    const res = await fetch(SSI_ISSUER_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        issuer:    ISSUER_ID,
-        did:       did,
-        credential: credentialPayload,
-        registry:  "blockchain"          // oder "db"
-      })
-    });
+// 3. Credential beim Issuer anfordern
+const res = await fetch(SSI_ISSUER_URL, {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    issuer:    ISSUER_ID,
+    did:       did,
+    credential: credentialPayload,
+    registry:  "blockchain"
+  })
+});
 
-    if (!res.ok) {
-      const text = await res.text();
-      console.error("Issuer HTTP error:", res.status, text);
-      alert("SSI-Issuer Fehler (Details in der Konsole).");
-      return;
-    }
+if (!res.ok) {
+  const text = await res.text();
+  console.error("Issuer HTTP error:", res.status, text);
+  alert("SSI-Issuer Fehler (Details in der Konsole).");
+  return;
+}
 
-    // 👉 HIER hat es bei dir gefehlt:
-    const issued = await res.json();
-    console.log("Issued credential:", issued);
+// ⬅️ SEHR WICHTIG:
+const issued = await res.json();
+console.log("Issued credential:", issued);
 
-    // 4. Credential lokal speichern – key = documentHash
-    const ssiRef = issued.documentHash;
-    if (!ssiRef) {
-      alert("Issuer hat keinen documentHash zurückgegeben.");
-      return;
-    }
+// 4. Unsere on-chain Referenz
+const ssiRef = issued.documentHash;
+if (!ssiRef) {
+  alert("Issuer hat keinen documentHash zurückgegeben.");
+  return;
+}
 
-    const stored = JSON.parse(localStorage.getItem("vcmCredentials") || "{}");
-    stored[ssiRef] = issued;
-    localStorage.setItem("vcmCredentials", JSON.stringify(stored));
+// 5. Credential im Browser speichern (Demo)
+const stored = JSON.parse(localStorage.getItem("vcmCredentials") || "{}");
+stored[ssiRef] = issued;
+localStorage.setItem("vcmCredentials", JSON.stringify(stored));
 
-    // 5. Projekt im Smart Contract anlegen
-    const tx = await registry.methods
-      .createProject(name, payout, ipfs, ssiRef)
-      .send({ from });
+// 6. Projekt im Smart Contract anlegen
+const tx = await registry.methods
+  .createProject(name, payout, ipfs, ssiRef)
+  .send({ from });
+
 
     console.log("Project created (with SSI ref):", tx);
     alert("Projekt mit SSI-Referenz erstellt! Tx: " + tx.transactionHash);
