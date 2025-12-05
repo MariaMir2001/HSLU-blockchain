@@ -783,12 +783,13 @@ async function ownerDistribute() {
 /* ---------- CREATOR-FUNKTION ---------- */
 
 // Projekt-Ersteller: Projekt anlegen
+// Projekt-Ersteller: Projekt anlegen
 const ISSUER_ID = "issuer1";                  // muss zu deinen key-Dateien passen
 const SSI_ISSUER_URL = "http://localhost:9001/issue-credential";
 
 async function creatorCreateProject() {
-  await loadAccounts();                       // lädt z.B. creator = accounts[1]
-  const from = creator;                       // oder direkt accounts[1]
+  await loadAccounts();                       // lädt z.B. creator = accounts[2]
+  const from = creator;
 
   const name   = document.getElementById("projName").value.trim();
   const payout = document.getElementById("projPayout").value.trim();
@@ -801,7 +802,6 @@ async function creatorCreateProject() {
 
   try {
     // 1. DID erzeugen
-    // ✅ neue Version – DID für Blockchain
     const did = `did:eth:${from}`;   // z.B. did:eth:0xabc123...
 
     // 2. Credential-Inhalt bauen
@@ -831,15 +831,20 @@ async function creatorCreateProject() {
       return;
     }
 
+    // 👉 HIER hat es bei dir gefehlt:
     const issued = await res.json();
     console.log("Issued credential:", issued);
 
-    // 4. Unsere on-chain Referenz: der documentHash
-    const ssiRef = issued.documentHash;       // kommt aus deiner Code-Erweiterung
+    // 4. Credential lokal speichern – key = documentHash
+    const ssiRef = issued.documentHash;
     if (!ssiRef) {
       alert("Issuer hat keinen documentHash zurückgegeben.");
       return;
     }
+
+    const stored = JSON.parse(localStorage.getItem("vcmCredentials") || "{}");
+    stored[ssiRef] = issued;
+    localStorage.setItem("vcmCredentials", JSON.stringify(stored));
 
     // 5. Projekt im Smart Contract anlegen
     const tx = await registry.methods
@@ -854,6 +859,7 @@ async function creatorCreateProject() {
     alert("Fehler beim Erstellen (Konsole ansehen).");
   }
 }
+
 
 
 
@@ -902,6 +908,72 @@ async function investorDeposit() {
     alert("Fehler beim Deposit (siehe Konsole).");
   }
 }
+
+const SSI_VERIFIER_URL = "http://localhost:9002/verify-credential"; // wie in deinem SSI-Template
+
+async function verifierVerifyAndApprove() {
+  await loadAccounts();
+
+  const idStr = document.getElementById("verifierProjectId").value.trim();
+  if (!idStr) { alert("Bitte eine Projekt-ID eingeben."); return; }
+  const id = parseInt(idStr, 10);
+
+  try {
+    // 1. Projekt aus dem Registry-Contract lesen
+    const p = await registry.methods.getProject(id).call();
+    const ssiRef = p.ssiDidHash;  // das ist dein documentHash
+    console.log("Project from chain:", p);
+
+    if (!ssiRef) {
+      alert("Dieses Projekt hat keine SSI-Referenz.");
+      return;
+    }
+
+    // 2. Credential lokal holen (siehe Creator-Speicher)
+    const stored = JSON.parse(localStorage.getItem("vcmCredentials") || "{}");
+    const credential = stored[ssiRef];
+
+    if (!credential) {
+      alert("Kein Credential zu dieser SSI-Referenz gefunden (Browser-Speicher).");
+      return;
+    }
+
+    // 3. Beim SSI-Verifier prüfen lassen
+    const res = await fetch(SSI_VERIFIER_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(credential)
+    });
+
+    if (!res.ok) {
+      const text = await res.text();
+      console.error("Verifier HTTP error:", res.status, text);
+      alert("Fehler beim SSI-Check (siehe Konsole).");
+      return;
+    }
+
+    const result = await res.json();
+    console.log("SSI verify result:", result);
+
+    if (!result.valid) {
+      alert("SSI-Verifikation fehlgeschlagen – Projekt wird NICHT approved.");
+      return;
+    }
+
+    // 4. Wenn alles OK: on-chain approven
+    const tx = await registry.methods
+      .approveProject(id)
+      .send({ from: verifier });
+
+    console.log("Project approved:", tx);
+    alert("Projekt ist SSI-validiert und on-chain genehmigt!");
+
+  } catch (err) {
+    console.error("Error in verifierVerifyAndApprove:", err);
+    alert("Fehler beim Verifizieren/Approven (Konsole ansehen).");
+  }
+}
+
 
 
 
