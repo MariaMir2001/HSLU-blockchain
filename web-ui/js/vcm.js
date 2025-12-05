@@ -1,6 +1,7 @@
 const registryAddress = "0x4ed7c70F96B99c776995fB64377f0d4aB3B0e1C1";   // aus logs
 const fundingPoolAddress = "0x322813Fd9A801c5507c9de605d63CEA4f2CE6c44";
 
+
 const registryAbi = [
     {
       "inputs": [],
@@ -782,31 +783,79 @@ async function ownerDistribute() {
 /* ---------- CREATOR-FUNKTION ---------- */
 
 // Projekt-Ersteller: Projekt anlegen
+const ISSUER_ID = "issuer1";                  // muss zu deinen key-Dateien passen
+const SSI_ISSUER_URL = "http://localhost:9001/issue-credential";
+
 async function creatorCreateProject() {
-  await loadAccounts();
+  await loadAccounts();                       // lädt z.B. creator = accounts[1]
+  const from = creator;                       // oder direkt accounts[1]
 
   const name   = document.getElementById("projName").value.trim();
   const payout = document.getElementById("projPayout").value.trim();
   const ipfs   = document.getElementById("projIpfs").value.trim();
-  const did    = document.getElementById("projDid").value.trim();
 
-  if (!name || !payout || !ipfs || !did) {
+  if (!name || !payout || !ipfs) {
     alert("Bitte alle Felder ausfüllen.");
     return;
   }
 
   try {
-    const tx = await registry.methods
-      .createProject(name, payout, ipfs, did)
-      .send({ from: creator });
+    // 1. DID erzeugen
+    // ✅ neue Version – DID für Blockchain
+    const did = `did:eth:${from}`;   // z.B. did:eth:0xabc123...
 
-    console.log("Project created:", tx);
-    alert("Projekt erstellt! Tx: " + tx.transactionHash);
+    // 2. Credential-Inhalt bauen
+    const credentialPayload = {
+      projectName:     name,
+      payoutAddress:   payout,
+      ipfsHash:        ipfs,
+      projectCreator:  from
+    };
+
+    // 3. Credential beim Issuer anfordern
+    const res = await fetch(SSI_ISSUER_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        issuer:    ISSUER_ID,
+        did:       did,
+        credential: credentialPayload,
+        registry:  "blockchain"          // oder "db"
+      })
+    });
+
+    if (!res.ok) {
+      const text = await res.text();
+      console.error("Issuer HTTP error:", res.status, text);
+      alert("SSI-Issuer Fehler (Details in der Konsole).");
+      return;
+    }
+
+    const issued = await res.json();
+    console.log("Issued credential:", issued);
+
+    // 4. Unsere on-chain Referenz: der documentHash
+    const ssiRef = issued.documentHash;       // kommt aus deiner Code-Erweiterung
+    if (!ssiRef) {
+      alert("Issuer hat keinen documentHash zurückgegeben.");
+      return;
+    }
+
+    // 5. Projekt im Smart Contract anlegen
+    const tx = await registry.methods
+      .createProject(name, payout, ipfs, ssiRef)
+      .send({ from });
+
+    console.log("Project created (with SSI ref):", tx);
+    alert("Projekt mit SSI-Referenz erstellt! Tx: " + tx.transactionHash);
+
   } catch (err) {
-    console.error("Error creating project:", err);
-    alert("Fehler beim Erstellen (siehe Konsole).");
+    console.error("Error creating project with SSI:", err);
+    alert("Fehler beim Erstellen (Konsole ansehen).");
   }
 }
+
+
 
 /* ---------- VERIFIER-FUNKTION ---------- */
 

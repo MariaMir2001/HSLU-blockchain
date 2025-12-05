@@ -1,4 +1,4 @@
-const registryAddress = '0x322813Fd9A801c5507c9de605d63CEA4f2CE6c44'//'0x3Aa5ebB10DC797CAC828524e59A333d0A371443c'
+const registryAddress = '0x59b670e9fA9D0A427751Af201D676719a970857b'//'0x3Aa5ebB10DC797CAC828524e59A333d0A371443c'
 //'0x3Aa5ebB10DC797CAC828524e59A333d0A371443c'; // Replace with your deployed contract address
 
 const express = require('express');
