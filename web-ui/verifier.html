@@ -36,18 +36,24 @@
             Der Verifier prüft eingereichte Projekte und gibt sie für die Veröffentlichung frei.
           </p>
 
-          <div class="mb-3">
-            <label class="form-label" for="verifierProjectId">Project ID</label>
-            <input id="verifierProjectId" type="number" min="1" class="form-control" placeholder="1">
-          </div>
+      <div class="mb-3">
+        <label class="form-label" for="verifierProjectId">Project</label>
+        <select id="verifierProjectId" class="form-select">
+          <option value="">Lade Projekte…</option>
+        </select>
+        <div class="form-text">
+          Es werden nur existierende Projekte aus der Blockchain angezeigt.
+        </div>
+      </div>
 
-          <button class="btn btn-success w-100" onclick="verifierApproveProject()">
-            Approve Project
-          </button>
-          <input id="verifierProjectId" class="form-control" placeholder="Project ID">
-          <button class="btn btn-primary mt-2" onclick="verifierVerifyAndApprove()">
-            Verify SSI & Approve Project
-          </button>
+      <button class="btn btn-success w-100 mb-2" onclick="verifierApproveProject()">
+        Approve Project (ohne SSI-Check)
+      </button>
+
+      <button class="btn btn-primary w-100" onclick="verifierVerifyAndApprove()">
+        Verify SSI & Approve Project
+      </button>
+
 
         </div>
       </div>

@@ -33,23 +33,31 @@
         </div>
         <div class="card-body">
 
-          <h5 class="card-title">1. Verifier hinzufügen</h5>
-          <div class="mb-3">
-            <label for="ownerVerifierAddress" class="form-label">Verifier Address</label>
-            <input id="ownerVerifierAddress" type="text" class="form-control" placeholder="0x...">
+        <!-- 1. Verifier hinzufügen -->
+        <h5 class="card-title">1. Verifier hinzufügen</h5>
+        <div class="mb-3">
+          <label for="ownerVerifierAddress" class="form-label">Verifier Address</label>
+          <select id="ownerVerifierAddress" class="form-select">
+            <option value="">Lade Adressen…</option>
+          </select>
+          <div class="form-text">
+            Es werden alle Accounts außer dem Owner angezeigt.
           </div>
-          <button class="btn btn-primary w-100 mb-4" onclick="ownerAddVerifier()">
-            Add Verifier
-          </button>
+        </div>
+        <button class="btn btn-primary w-100 mb-4" onclick="ownerAddVerifier()">
+          Add Verifier
+        </button>
 
-          <h5 class="card-title">2. Required Approvals</h5>
-          <div class="mb-3">
-            <label for="ownerRequiredApprovals" class="form-label">Number of approvals</label>
-            <input id="ownerRequiredApprovals" type="number" min="1" class="form-control" value="1">
-          </div>
-          <button class="btn btn-secondary w-100 mb-4" onclick="ownerSetRequiredApprovals()">
-            Set Required Approvals
-          </button>
+        <!-- 2. Required Approvals -->
+        <h5 class="card-title">2. Required Approvals</h5>
+        <div class="mb-3">
+          <label for="ownerRequiredApprovals" class="form-label">Number of approvals</label>
+          <select id="ownerRequiredApprovals" class="form-select"></select>
+        </div>
+        <button class="btn btn-secondary w-100 mb-4" onclick="ownerSetRequiredApprovals()">
+          Set Required Approvals
+        </button>
+
 
           <h5 class="card-title">3. Quartals-Verteilung</h5>
           <p class="small text-muted">Verteilt den aktuellen Pool-Balance anteilig an alle veröffentlichten Projekte.</p>

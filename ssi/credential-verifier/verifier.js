@@ -9,54 +9,94 @@ app.use(cors());
 app.use(express.json());
 
 app.post('/verify-credential', async (req, res) => {
-    const { credential } = req.body;
-    console.log('Received verification request for:', credential);
+  try {
+    // 1. Sowohl {credential:{...}} als auch {...} akzeptieren
+    const credential = req.body.credential || req.body;
+    console.log("Received verification request for:", credential);
 
-    try {
-        console.log(`Querying DID registry for DID: ${credential.issuedTo}`);
-        let response;
-        if (credential.registry === 'db') {
-            response = await axios.get(`http://did-registry:9003/dids/db/${credential.issuedTo}`);
-        } else if (credential.registry === 'blockchain') {
-            response = await axios.get(`http://did-registry:9003/dids/blockchain/${credential.issuedTo}`);
-        }
-        const didDocument = response.data;
-        console.log('DID document found:', didDocument);
-
-        if (!credential.signature) {
-            throw new Error('Credential does not contain a signature');
-        }
-
-        if (!didDocument.issuer || !didDocument.publicKey) {
-            throw new Error('Issuer or publicKey is not defined in the DID document');
-        }
-
-        console.log(`Using issuer: ${didDocument.issuer} and publicKey: ${didDocument.publicKey}`);
-
-        // Log the exact data being hashed
-        const { signature, ...credentialWithoutSignature } = credential;
-        const jsonString = JSON.stringify(credentialWithoutSignature);
-        console.log('JSON string being hashed:', jsonString);
-
-        const documentHash = crypto.createHash('sha256').update(jsonString).digest('hex');
-        console.log(`Created document hash: ${documentHash}`);
-
-        const verify = crypto.createVerify('SHA256');
-        verify.update(documentHash);
-        verify.end();
-        const isValidSignature = verify.verify(didDocument.publicKey, Buffer.from(signature, 'base64'));
-        console.log('Signature valid:', isValidSignature);
-
-        if (!isValidSignature) {
-            return res.status(400).json({ valid: false, error: 'Invalid credential signature' });
-        }
-
-        const isValid = isValidSignature; //&& credential.issuedTo && credential.issuedAt && credential.type && credential.name && credential.course && credential.issuer;
-        res.json({ valid: isValid });
-    } catch (error) {
-        console.error('Error verifying credential:', error.message);
-        res.status(404).json({ error: error.message });
+    if (!credential || !credential.issuedTo) {
+      return res
+        .status(400)
+        .json({ valid: false, error: "Missing credential or issuedTo" });
     }
+
+    const did      = credential.issuedTo;
+    const registry = credential.registry || "db";
+
+    console.log("Querying DID registry for DID:", did);
+
+    // 2. DID Document aus deiner DID-Registry holen
+    let didDocRes;
+    if (registry === "db") {
+      didDocRes = await axios.get(
+        `http://did-registry:9003/dids/db/${encodeURIComponent(did)}`
+      );
+    } else if (registry === "blockchain") {
+      didDocRes = await axios.get(
+        `http://did-registry:9003/dids/blockchain/${encodeURIComponent(did)}`
+      );
+    } else {
+      return res
+        .status(400)
+        .json({ valid: false, error: `Unknown registry: ${registry}` });
+    }
+
+    const didDocument = didDocRes.data;
+    console.log("DID Document:", didDocument);
+
+    // 3. Hash bestimmen:
+    //    a) Wenn documentHash mitgeschickt wird, den verwenden
+    //    b) Sonst wie bisher aus den Kernfeldern berechnen
+    let documentHash = credential.documentHash;
+    if (!documentHash) {
+      const core = {
+        content:  credential.content,
+        issuedTo: credential.issuedTo,
+        issuedAt: credential.issuedAt,
+        issuer:   credential.issuer,
+        registry: credential.registry,
+      };
+      const jsonString = JSON.stringify(core);
+      documentHash = crypto
+        .createHash("sha256")
+        .update(jsonString)
+        .digest("hex");
+    }
+    console.log("Using documentHash:", documentHash);
+
+    // 4. Signatur prüfen
+    const verify = crypto.createVerify("SHA256");
+    verify.update(documentHash);
+    verify.end();
+
+    const isValidSignature = verify.verify(
+      didDocument.publicKey,
+      credential.signature,
+      "base64"
+    );
+
+    console.log("Signature valid:", isValidSignature);
+
+    if (!isValidSignature) {
+      return res
+        .status(400)
+        .json({ valid: false, error: "Invalid credential signature" });
+    }
+
+    // Optional: Hash aus Credential mit berechnetem vergleichen
+    if (credential.documentHash && credential.documentHash !== documentHash) {
+      return res
+        .status(400)
+        .json({ valid: false, error: "Document hash mismatch" });
+    }
+
+    return res.json({ valid: true });
+  } catch (err) {
+    console.error("Error verifying credential:", err);
+    return res
+      .status(500)
+      .json({ valid: false, error: "Error verifying credential" });
+  }
 });
 
 app.listen(port, () => {

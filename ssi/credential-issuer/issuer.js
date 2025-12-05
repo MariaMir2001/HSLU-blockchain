@@ -32,11 +32,13 @@ app.post('/issue-credential', async (req, res) => {
 
     // 3. Im Registry-Service speichern (optional)
     try {
-      if (registry === 'db') {
-        await axios.post('http://did-registry:9003/did', didDocument);
-      } else if (registry === 'blockchain') {
-        await axios.post('http://did-registry:9003/did', didDocument);
-      }
+// ---- Issuer ----
+        if (registry === 'db') {
+        await axios.post('http://did-registry:9003/dids/db', didDocument);
+        } else if (registry === 'blockchain') {
+        await axios.post('http://did-registry:9003/dids/blockchain', didDocument);
+        }
+
     } catch (e) {
       console.warn('WARN: Could not store DID document. SSI läuft trotzdem weiter:', e.response?.data || e.message);
     }

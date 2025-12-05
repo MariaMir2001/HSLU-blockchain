@@ -937,14 +937,15 @@ async function verifierVerifyAndApprove() {
 
     if (!credential) {
       alert("Kein Credential zu dieser SSI-Referenz gefunden (Browser-Speicher).");
+         
       return;
     }
-
+console.log("Credential, das an SSI-Verifier gesendet wird:", credential);
     // 3. Beim SSI-Verifier prüfen lassen
     const res = await fetch(SSI_VERIFIER_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(credential)
+    body: JSON.stringify({ credential })
     });
 
     if (!res.ok) {
@@ -975,6 +976,131 @@ async function verifierVerifyAndApprove() {
     alert("Fehler beim Verifizieren/Approven (Konsole ansehen).");
   }
 }
+
+
+
+// -------- UI-Initialisierung (Dropdowns) --------
+
+async function initDropdowns() {
+  try {
+    await loadAccounts(); // lädt owner, verifier, creator, investor
+
+    populateOwnerVerifierSelect();
+    populateOwnerApprovalsSelect();
+    populateCreatorPayoutSelect();
+    await populateVerifierProjectSelect();
+
+  } catch (err) {
+    console.error("Fehler bei initDropdowns:", err);
+  }
+}
+
+// Owner: Verifier-Adresse
+function populateOwnerVerifierSelect() {
+  const sel = document.getElementById("ownerVerifierAddress");
+  if (!sel || !accounts) return;
+
+  sel.innerHTML = "";
+  const ph = document.createElement("option");
+  ph.value = "";
+  ph.textContent = "Adresse auswählen…";
+  ph.disabled = true;
+  ph.selected = true;
+  sel.appendChild(ph);
+
+  accounts.forEach((addr, idx) => {
+    if (idx === 0) return; // Owner selbst nicht anbieten
+
+    const opt = document.createElement("option");
+    let role = `Account ${idx}`;
+    if (idx === 1) role = "Verifier (Standard)";
+    if (idx === 2) role = "Project Creator";
+    if (idx === 3) role = "Investor";
+
+    opt.value = addr;
+    opt.textContent = `${role} – ${addr}`;
+    sel.appendChild(opt);
+  });
+}
+
+// Owner: Required Approvals 1..(Anzahl Accounts-1)
+function populateOwnerApprovalsSelect() {
+  const sel = document.getElementById("ownerRequiredApprovals");
+  if (!sel || !accounts) return;
+
+  sel.innerHTML = "";
+  const max = Math.max(1, accounts.length - 1); // alle möglichen Verifier
+  for (let i = 1; i <= max; i++) {
+    const opt = document.createElement("option");
+    opt.value = String(i);
+    opt.textContent = String(i);
+    sel.appendChild(opt);
+  }
+  sel.value = "1";
+}
+
+// Creator: Payout-Adresse (alle außer Creator selbst)
+function populateCreatorPayoutSelect() {
+  const sel = document.getElementById("projPayout");
+  if (!sel || !accounts) return;
+
+  sel.innerHTML = "";
+  const ph = document.createElement("option");
+  ph.value = "";
+  ph.textContent = "Adresse auswählen…";
+  ph.disabled = true;
+  ph.selected = true;
+  sel.appendChild(ph);
+
+  accounts.forEach((addr, idx) => {
+    if (idx === 2) return; // Creator selbst nicht
+
+    const opt = document.createElement("option");
+    let role = `Account ${idx}`;
+    if (idx === 0) role = "Owner";
+    if (idx === 1) role = "Verifier";
+    if (idx === 3) role = "Investor";
+
+    opt.value = addr;
+    opt.textContent = `${role} – ${addr}`;
+    if (idx === 3) opt.selected = true; // Investor als Standard
+    sel.appendChild(opt);
+  });
+}
+
+// Verifier: Projekte aus dem Registry-Contract
+async function populateVerifierProjectSelect() {
+  const sel = document.getElementById("verifierProjectId");
+  if (!sel) return;
+
+  try {
+    const countStr = await registry.methods.projectCount().call();
+    const count = Number(countStr);
+
+    sel.innerHTML = "";
+    const ph = document.createElement("option");
+    ph.value = "";
+    ph.disabled = true;
+    ph.selected = true;
+    ph.textContent =
+      count === 0 ? "Noch keine Projekte vorhanden" : "Projekt auswählen…";
+    sel.appendChild(ph);
+
+    for (let id = 1; id <= count; id++) {
+      const p = await registry.methods.getProject(id).call();
+      const opt = document.createElement("option");
+      opt.value = String(id);
+      opt.textContent = `${id}: ${p.name} (Approvals: ${p.approvalsCount})`;
+      sel.appendChild(opt);
+    }
+  } catch (err) {
+    console.error("Fehler beim Laden der Projektliste:", err);
+  }
+}
+
+// Diese Zeile ganz am Ende von vcm.js:
+initDropdowns().catch(console.error);
+
 
 
 
