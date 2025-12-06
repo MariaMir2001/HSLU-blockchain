@@ -67,6 +67,25 @@
           <button class="btn btn-success w-100" onclick="ownerDistribute()">
             Simulate Quarter Distribution
           </button>
+
+          <h5 class="card-title mt-4">4. Pool & Projekt-Auszahlungen</h5>
+          <p class="small text-muted">
+            Aktueller Ether-Bestand im FundingPool:
+            <strong><span id="ownerPoolBalance">0</span> ETH</strong>
+          </p>
+
+          <div id="ownerPayouts" class="small mb-3">
+            Noch keine Auszahlungen geladen.
+          </div>
+
+          <canvas id="ownerPayoutPie" height="180"></canvas>
+
+          
+
+          <!-- Chart.js für das Kreisdiagramm -->
+          <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
 <div id="verifierMessages"></div>
         </div>
       </div>

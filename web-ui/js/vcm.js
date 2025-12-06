@@ -745,6 +745,126 @@ async function loadAccounts() {
 /* ---------- OWNER-FUNKTIONEN ---------- */
 
 // Owner: Verifier setzen
+function shortAddress(addr) {
+  if (!addr) return "";
+  return addr.slice(0, 6) + "…" + addr.slice(-4);
+}
+
+function labelForInvestor(addr) {
+  if (investors && investors.length) {
+    const idx = investors.findIndex(
+      (a) => a.toLowerCase() === addr.toLowerCase()
+    );
+    if (idx !== -1) {
+      return `Investor ${idx + 1} (${shortAddress(addr)})`;
+    }
+  }
+  return shortAddress(addr);
+}
+
+let ownerPayoutChart = null;
+
+async function refreshOwnerFundingOverview() {
+  // Wenn wir nicht auf der Owner-Seite sind, einfach leise beenden
+  const balanceSpan = document.getElementById("ownerPoolBalance");
+  const payoutsDiv  = document.getElementById("ownerPayouts");
+  const pieCanvas   = document.getElementById("ownerPayoutPie");
+
+  if (!balanceSpan && !payoutsDiv && !pieCanvas) return;
+
+  // 1. Pool-Balance laden
+  try {
+    const poolBalanceWei = await pool.methods.poolBalance().call();
+    const poolBalanceEth = web3.utils.fromWei(poolBalanceWei, "ether");
+    if (balanceSpan) balanceSpan.textContent = poolBalanceEth;
+  } catch (err) {
+    console.error("Fehler beim Laden der Pool-Balance:", err);
+    if (balanceSpan) balanceSpan.textContent = "?";
+  }
+
+  // 2. ProjectPayout-Events laden
+  if (!payoutsDiv) return;
+
+  let events;
+  try {
+    events = await pool.getPastEvents("ProjectPayout", {
+      fromBlock: 0,
+      toBlock: "latest",
+    });
+  } catch (err) {
+    console.error("Fehler beim Laden der ProjectPayout-Events:", err);
+    payoutsDiv.textContent = "Fehler beim Laden der Auszahlungen (Konsole ansehen).";
+    return;
+  }
+
+  if (!events.length) {
+    payoutsDiv.textContent = "Bisher wurden noch keine Auszahlungen an Projekte vorgenommen.";
+    if (ownerPayoutChart) {
+      ownerPayoutChart.destroy();
+      ownerPayoutChart = null;
+    }
+    return;
+  }
+
+  // 2a. Liste im Text
+  payoutsDiv.innerHTML = "";
+  const list = document.createElement("ul");
+  list.className = "list-group";
+
+  // Aggregiert pro Projekt für das Kreisdiagramm
+  const perProject = {};
+
+  for (const ev of events) {
+    const projectId = ev.returnValues.projectId;
+    const amountWei = web3.utils.toBN(ev.returnValues.amount);
+    const amountEth = web3.utils.fromWei(amountWei, "ether");
+
+    if (!perProject[projectId]) {
+      perProject[projectId] = web3.utils.toBN("0");
+    }
+    perProject[projectId] = perProject[projectId].add(amountWei);
+
+    const li = document.createElement("li");
+    li.className = "list-group-item d-flex justify-content-between align-items-center";
+    li.innerHTML = `
+      <span>Project #${projectId}</span>
+      <span>${amountEth} ETH</span>
+    `;
+    list.appendChild(li);
+  }
+
+  payoutsDiv.appendChild(list);
+
+  // 2b. Kreisdiagramm aus den aggregierten Werten
+  if (!pieCanvas) return;
+
+  const labels = [];
+  const data   = [];
+
+  for (const [projectId, amtWei] of Object.entries(perProject)) {
+    labels.push("Project " + projectId);
+    data.push(Number(web3.utils.fromWei(amtWei, "ether")));
+  }
+
+  if (ownerPayoutChart) {
+    ownerPayoutChart.destroy();
+  }
+
+  const ctx = pieCanvas.getContext("2d");
+  ownerPayoutChart = new Chart(ctx, {
+    type: "pie",
+    data: {
+      labels,
+      datasets: [
+        {
+          data,
+        },
+      ],
+    },
+  });
+}
+
+
 async function ownerAddVerifier() {
   await loadAccounts();
   const addr = document.getElementById("ownerVerifierAddress").value.trim();
@@ -1100,7 +1220,7 @@ async function initDropdowns() {
     populateInvestorAddressSelect(); 
     await populateVerifierProjectSelect();
     initIpfsUpload();
-
+    refreshOwnerFundingOverview().catch(console.error);
 
   } catch (err) {
     console.error("Fehler bei initDropdowns:", err);
