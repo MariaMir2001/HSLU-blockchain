@@ -748,12 +748,13 @@ async function loadAccounts() {
 async function ownerAddVerifier() {
   await loadAccounts();
   const addr = document.getElementById("ownerVerifierAddress").value.trim();
-  if (!addr) { alert("Bitte eine Verifier-Adresse eingeben."); return; }
+  if (!addr) { showMessage("warning", "Please enter a verifier address."); return; }
 
   try {
     const already = await registry.methods.isVerifier(addr).call();
     if (already) {
-      alert("Adresse ist bereits Verifier.");
+      //alert("Adresse ist bereits Verifier.");
+      showMessage("info", "The address is already a verifier.");
       return;
     }
     const tx = await registry.methods
@@ -761,11 +762,13 @@ async function ownerAddVerifier() {
       .send({ from: owner });
 
     console.log("Verifier added:", tx);
-    alert("Verifier wurde gesetzt.");
+    //alert("Verifier wurde gesetzt.");
+    showMessage("success", "Verifier is set.");
   } catch (err) {
     console.error("Error in ownerAddVerifier:", err);
-    alert("Fehler beim Setzen des Verifiers (siehe Konsole).");
-  }
+    //alert("Fehler beim Setzen des Verifiers (siehe Konsole).");
+    showMessage("danger", "Error setting verifier. See console for details.");
+}
 }
 
 // Owner: Anzahl benötigter Approvals setzen
@@ -783,10 +786,11 @@ async function ownerSetRequiredApprovals() {
     const sel = document.getElementById("ownerRequiredApprovals");
     if (sel) sel.value = String(n);
 
-    alert("Required approvals wurden auf 5 gesetzt.");
+    
+    showMessage("success", "Required approvals set to 5.");
   } catch (err) {
     console.error("Error in ownerSetRequiredApprovals:", err);
-    alert("Fehler beim Setzen (siehe Konsole).");
+    showMessage("danger", "Error setting required approvals. See console for details.");
   }
 }
 
@@ -800,10 +804,10 @@ async function ownerDistribute() {
       .send({ from: owner });
 
     console.log("Distribution:", tx);
-    alert("Verteilung durchgeführt.");
+    showMessage("success", "Distribution completed.");
   } catch (err) {
     console.error("Error in ownerDistribute:", err);
-    alert("Fehler bei der Verteilung (siehe Konsole).");
+    showMessage("danger", "Error during distribution. See console for details.");
   }
 }
 
@@ -823,7 +827,7 @@ async function creatorCreateProject() {
   const ipfs   = document.getElementById("projIpfs").value.trim();
 
   if (!name || !payout || !ipfs) {
-    alert("Bitte alle Felder ausfüllen.");
+    showMessage("warning", "Bitte alle Felder ausfüllen.");
     return;
   }
 
@@ -854,7 +858,7 @@ const res = await fetch(SSI_ISSUER_URL, {
 if (!res.ok) {
   const text = await res.text();
   console.error("Issuer HTTP error:", res.status, text);
-  alert("SSI-Issuer Fehler (Details in der Konsole).");
+  showMessage("danger", "SSI-Issuer error (see console for details).");
   return;
 }
 
@@ -865,7 +869,7 @@ console.log("Issued credential:", issued);
 // 4. Unsere on-chain Referenz
 const ssiRef = issued.documentHash;
 if (!ssiRef) {
-  alert("Issuer hat keinen documentHash zurückgegeben.");
+  showMessage("danger", "Issuer did not return a documentHash.");
   return;
 }
 
@@ -881,11 +885,12 @@ const tx = await registry.methods
 
 
     console.log("Project created (with SSI ref):", tx);
-    alert("Projekt mit SSI-Referenz erstellt! Tx: " + tx.transactionHash);
+    //alert("Projekt mit SSI-Referenz erstellt! Tx: " + tx.transactionHash);
+    showMessage("success", "Projekt mit SSI-Referenz erstellt! Tx: " + tx.transactionHash);
 
   } catch (err) {
     console.error("Error creating project with SSI:", err);
-    alert("Fehler beim Erstellen (Konsole ansehen).");
+    showMessage("danger", "Error creating project (see console).");
   }
 }
 
@@ -899,7 +904,7 @@ async function verifierApproveProject() {
   await loadAccounts();
 
   const idStr = document.getElementById("verifierProjectId").value.trim();
-  if (!idStr) { alert("Bitte eine Projekt-ID eingeben."); return; }
+  if (!idStr) { showMessage("warning", "Bitte eine Projekt-ID eingeben."); return; }
   const id = parseInt(idStr, 10);
 
   try {
@@ -908,10 +913,10 @@ async function verifierApproveProject() {
       .send({ from: verifier });
 
     console.log("Project approved:", tx);
-    alert("Projekt genehmigt.");
+    showMessage("success", "Projekt genehmigt.");
   } catch (err) {
     console.error("Error approving project:", err);
-    alert("Fehler beim Approve (siehe Konsole).");
+    showMessage("danger", "Fehler beim Approve (siehe Konsole).");
   }
 }
 
@@ -922,7 +927,7 @@ async function investorDeposit() {
   await loadAccounts();
 
   const amountStr = document.getElementById("investorDepositAmount").value.trim();
-  if (!amountStr) { alert("Bitte einen Betrag eingeben."); return; }
+  if (!amountStr) { showMessage("warning", "Bitte einen Betrag eingeben."); return; }
   const valueWei = web3.utils.toWei(amountStr, "ether");
 
   try {
@@ -931,10 +936,10 @@ async function investorDeposit() {
       .send({ from: investor, value: valueWei });
 
     console.log("Deposit:", tx);
-    alert("Deposit erfolgreich.");
+    showMessage("success", "Deposit erfolgreich.");
   } catch (err) {
     console.error("Error depositing:", err);
-    alert("Fehler beim Deposit (siehe Konsole).");
+    showMessage("danger", "Fehler beim Deposit (siehe Konsole).");
   }
 }
 
@@ -944,41 +949,65 @@ async function verifierVerifyAndApprove() {
   await loadAccounts();
 
   const idStr = document.getElementById("verifierProjectId").value.trim();
-  if (!idStr) { alert("Bitte eine Projekt-ID eingeben."); return; }
+  if (!idStr) {
+    showMessage("warning", "Bitte ein Projekt auswählen.");
+    return;
+  }
   const id = parseInt(idStr, 10);
 
   try {
-    // 1. Projekt aus dem Registry-Contract lesen
-    const p = await registry.methods.getProject(id).call();
-    const ssiRef = p.ssiDidHash;  // das ist dein documentHash
-    console.log("Project from chain:", p);
-
-    if (!ssiRef) {
-      alert("Dieses Projekt hat keine SSI-Referenz.");
+    // --- 0. Adresse des Verifiers ---
+    const from = getCurrentVerifierAddress();
+    if (!from) {
+      showMessage("warning", "Keine Verifier-Adresse ausgewählt.");
       return;
     }
 
-    // 2. Credential lokal holen (siehe Creator-Speicher)
+    // --- 1. Prüfen, ob Verifier dieses Projekt schon approved hat ---
+    const already = await registry.methods.hasApproved(id, from).call();
+    if (already) {
+      showMessage("info", "Du hast dieses Projekt bereits genehmigt.");
+      return; // KEIN Transaktionsversuch → kein Revert
+    }
+
+    // --- 2. Projekt-Status prüfen ---
+    const p = await registry.methods.getProject(id).call();
+    const status = Number(p.status);      // 0 = Pending
+    const approvals = Number(p.approvalsCount);
+    const ssiRef = p.ssiDidHash;
+
+    if (status !== 0) { // nicht Pending
+      showMessage(
+        "info",
+        "Dieses Projekt ist nicht mehr im Pending-Status (bereits veröffentlicht oder beendet)."
+      );
+      return;
+    }
+
+    if (!ssiRef) {
+      showMessage("warning", "Dieses Projekt hat keine SSI-Referenz.");
+      return;
+    }
+
+    // --- 3. SSI Credential holen & prüfen (dein bestehender Code) ---
     const stored = JSON.parse(localStorage.getItem("vcmCredentials") || "{}");
     const credential = stored[ssiRef];
 
     if (!credential) {
-      alert("Kein Credential zu dieser SSI-Referenz gefunden (Browser-Speicher).");
-         
+      showMessage("warning", "Kein Credential zu dieser SSI-Referenz im Browser-Speicher.");
       return;
     }
-console.log("Credential, das an SSI-Verifier gesendet wird:", credential);
-    // 3. Beim SSI-Verifier prüfen lassen
+
     const res = await fetch(SSI_VERIFIER_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ credential })
+      body: JSON.stringify({ credential })
     });
 
     if (!res.ok) {
       const text = await res.text();
       console.error("Verifier HTTP error:", res.status, text);
-      alert("Fehler beim SSI-Check (siehe Konsole).");
+      showMessage("danger", "Fehler beim SSI-Check (siehe Konsole).");
       return;
     }
 
@@ -986,28 +1015,27 @@ console.log("Credential, das an SSI-Verifier gesendet wird:", credential);
     console.log("SSI verify result:", result);
 
     if (!result.valid) {
-      alert("SSI-Verifikation fehlgeschlagen – Projekt wird NICHT approved.");
+      showMessage("warning", "SSI-Verifikation fehlgeschlagen – Projekt wird NICHT approved.");
       return;
     }
-    // 4. Wenn alles OK: on-chain approven
-    const from = getCurrentVerifierAddress();
-    if (!from) {
-      alert("Keine Verifier-Adresse ausgewählt bzw. vorhanden.");
-      return;
-    }
-    // 4. Wenn alles OK: on-chain approven
+
+    // --- 4. Jetzt erst die on-chain Transaktion senden ---
     const tx = await registry.methods
       .approveProject(id)
-      .send({from});
+      .send({ from });
 
     console.log("Project approved:", tx);
-    alert("Projekt ist SSI-validiert und on-chain genehmigt!");
+    showMessage("success", "Projekt ist SSI-validiert und on-chain genehmigt!");
+
+    // Dropdown aktualisieren, damit Approvals-Zähler/✓ sofort passen
+    await populateVerifierProjectSelect();
 
   } catch (err) {
-    console.error("Error in verifierVerifyAndApprove:", err);
-    alert("Fehler beim Verifizieren/Approven (Konsole ansehen).");
+    console.error("Unerwarteter Fehler in verifierVerifyAndApprove:", err);
+    showMessage("danger", "Unerwarteter Fehler beim Verifizieren/Approven.");
   }
 }
+
 
 function getCurrentVerifierAddress() {
   const sel = document.getElementById("verifierAddress");
@@ -1141,15 +1169,25 @@ async function populateVerifierProjectSelect() {
 
     for (let id = 1; id <= count; id++) {
       const p = await registry.methods.getProject(id).call();
+      const status = Number(p.status);
+      const approvals = Number(p.approvalsCount);
+
+      const isDone =
+        approvals >= 5 || status >= 2; // 2 = Published
+
       const opt = document.createElement("option");
       opt.value = String(id);
-      opt.textContent = `${id}: ${p.name} (Approvals: ${p.approvalsCount})`;
+
+      const check = isDone ? "✓ " : "";
+      opt.textContent = `${check}${id}: ${p.name} (Approvals: ${approvals}/${5})`;
+
       sel.appendChild(opt);
     }
   } catch (err) {
     console.error("Fehler beim Laden der Projektliste:", err);
   }
 }
+
 
 // Verifier-Dashboard: Auswahl der Verifier-Adresse
 function populateVerifierAddressSelect() {
@@ -1196,5 +1234,30 @@ initDropdowns().catch(console.error);
 
 
 
+// Simple Bootstrap-Alert Helper
+function showMessage(type, text, targetId = "verifierMessages") {
+  const container = document.getElementById(targetId);
+  if (!container) {
+    // Fallback, falls div vergessen wurde
+    showMessage("danger", text);
+    return;
+  }
+
+  const wrapper = document.createElement("div");
+  wrapper.className = `alert alert-${type} alert-dismissible fade show`;
+  wrapper.setAttribute("role", "alert");
+  wrapper.innerHTML = `
+    ${text}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  `;
+
+  container.appendChild(wrapper);
+
+  // Alert nach 5 Sekunden automatisch schließen
+  setTimeout(() => {
+    const alertInstance = bootstrap.Alert.getOrCreateInstance(wrapper);
+    alertInstance.close();
+  }, 5000);
+}
 
 
