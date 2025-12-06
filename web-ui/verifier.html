@@ -15,6 +15,7 @@
   <div class="container-fluid">
     <a class="navbar-brand" href="#">VCM Prototype</a>
     <div class="navbar-nav">
+      <a class="nav-link" href="index.html">About BERP...</a>
       <a class="nav-link" href="owner.html">Owner</a>
       <a class="nav-link" href="creator.html">Project Creator</a>
       <a class="nav-link active" href="verifier.html">Verifier</a>
@@ -56,6 +57,10 @@
           Es werden nur existierende Projekte aus der Blockchain angezeigt.
         </div>
       </div>
+      <button class="btn btn-outline-secondary w-100 mt-2"
+        onclick="verifierOpenProjectDocument()">
+        Projekt-Dokument auf IPFS anzeigen
+      </button>
 
       <button class="btn btn-success w-100 mb-2" onclick="verifierApproveProject()">
         Approve Project (ohne SSI-Check)

@@ -721,7 +721,7 @@ async function loadAccounts() {
       accounts[7]
     ];
     creator  = accounts[2];  // Projekt-Ersteller
-    investor = [
+    investors = [
       accounts[3],
       accounts[8],
       accounts[9],
@@ -923,25 +923,37 @@ async function verifierApproveProject() {
 /* ---------- INVESTOR-FUNKTION ---------- */
 
 // Investor: Deposit in den FundingPool
+// Investor: Deposit in den FundingPool
 async function investorDeposit() {
   await loadAccounts();
 
+  const from = getCurrentInvestorAddress();
+  if (!from) {
+    showMessage("warning", "Bitte zuerst einen Investor auswählen.", "investorMessages");
+    return;
+  }
+
   const amountStr = document.getElementById("investorDepositAmount").value.trim();
-  if (!amountStr) { showMessage("warning", "Bitte einen Betrag eingeben."); return; }
+  if (!amountStr) {
+    showMessage("warning", "Bitte einen Betrag eingeben.", "investorMessages");
+    return;
+  }
+
   const valueWei = web3.utils.toWei(amountStr, "ether");
 
   try {
     const tx = await pool.methods
       .deposit()
-      .send({ from: investor, value: valueWei });
+      .send({ from, value: valueWei });
 
     console.log("Deposit:", tx);
-    showMessage("success", "Deposit erfolgreich.");
+    showMessage("success", "Deposit erfolgreich.", "investorMessages");
   } catch (err) {
     console.error("Error depositing:", err);
-    showMessage("danger", "Fehler beim Deposit (siehe Konsole).");
+    showMessage("danger", "Fehler beim Deposit (siehe Konsole).", "investorMessages");
   }
 }
+
 
 const SSI_VERIFIER_URL = "http://localhost:9002/verify-credential"; // wie in deinem SSI-Template
 
@@ -1051,6 +1063,21 @@ function getCurrentVerifierAddress() {
   return null;                    // nichts gefunden
 }
 
+function getCurrentInvestorAddress() {
+  const sel = document.getElementById("investorAddress");
+  if (sel && sel.value) {
+    return sel.value;            // Adresse aus dem Investor-Dropdown
+  }
+
+  // Fallback: erster Investor aus dem Array
+  if (investors && investors.length > 0) {
+    return investors[0];
+  }
+
+  return null;                    // nichts gefunden
+}
+
+
 
 
 
@@ -1058,14 +1085,22 @@ function getCurrentVerifierAddress() {
 
 async function initDropdowns() {
   try {
+
     await loadAccounts(); // lädt owner, verifier, creator, investor
+     const didInput = document.getElementById("projDid");
+    if (didInput) {
+      didInput.value = `did:eth:${creator}`;
+    }
     await ensureVerifiersOnChain();  
 
     populateOwnerVerifierSelect();
     populateOwnerApprovalsSelect();
     populateCreatorPayoutSelect();
     populateVerifierAddressSelect();
+    populateInvestorAddressSelect(); 
     await populateVerifierProjectSelect();
+    initIpfsUpload();
+
 
   } catch (err) {
     console.error("Fehler bei initDropdowns:", err);
@@ -1210,6 +1245,28 @@ function populateVerifierAddressSelect() {
   });
 }
 
+// Investor-Dashboard: Auswahl der Investor-Adresse
+function populateInvestorAddressSelect() {
+  const sel = document.getElementById("investorAddress");
+  if (!sel || !investors.length) return;
+
+  sel.innerHTML = "";
+  const ph = document.createElement("option");
+  ph.value = "";
+  ph.textContent = "Investor auswählen…";
+  ph.disabled = true;
+  ph.selected = true;
+  sel.appendChild(ph);
+
+  investors.forEach((addr, idx) => {
+    const opt = document.createElement("option");
+    opt.value = addr;
+    opt.textContent = `Investor ${idx + 1} – ${addr}`;
+    sel.appendChild(opt);
+  });
+}
+
+
 // Registriert alle verifiers[] im Smart Contract (nur wenn noch nicht gesetzt)
 async function ensureVerifiersOnChain() {
   await loadAccounts();
@@ -1259,5 +1316,108 @@ function showMessage(type, text, targetId = "verifierMessages") {
     alertInstance.close();
   }, 5000);
 }
+
+// ---- IPFS Upload (einfaches HTTP-API) ----
+
+const IPFS_ADD_URL = "http://localhost:5001/api/v0/add"; // ggf. anpassen
+
+async function uploadFileToIpfs(file) {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const response = await fetch(IPFS_ADD_URL, {
+    method: "POST",
+    body: formData,
+  });
+
+  if (!response.ok) {
+    throw new Error("IPFS HTTP error: " + response.status);
+  }
+
+  // go-ipfs liefert NDJSON (eine oder mehrere JSON-Zeilen)
+  const text = await response.text();
+  const firstLine = text.trim().split("\n")[0];
+  const data = JSON.parse(firstLine);
+
+  // typische Antwort: { Name, Hash, Size }
+  if (data.Hash) return data.Hash;
+
+  // Falls andere Struktur:
+  if (data.cid) return data.cid.toString();
+  if (data.Cid && data.Cid["/"]) return data.Cid["/"];
+
+  throw new Error("Konnte IPFS-Hash in Antwort nicht finden: " + text);
+}
+
+function initIpfsUpload() {
+  const fileInput = document.getElementById("uploadFile");
+  const ipfsInput = document.getElementById("projIpfs");
+
+  // Wenn wir nicht auf der Creator-Seite sind, einfach nichts tun
+  if (!fileInput || !ipfsInput) return;
+
+  fileInput.addEventListener("change", async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    try {
+      showMessage("info", "Lade Datei zu IPFS hoch …", "creatorMessages");
+
+      const hash = await uploadFileToIpfs(file);
+
+      ipfsInput.value = hash;
+      showMessage(
+        "success",
+        "Datei erfolgreich auf IPFS hochgeladen. Hash: " + hash,
+        "creatorMessages"
+      );
+    } catch (err) {
+      console.error("Fehler beim IPFS-Upload:", err);
+      showMessage(
+        "danger",
+        "Fehler beim IPFS-Upload (Details in der Konsole).",
+        "creatorMessages"
+      );
+    }
+  });
+}
+
+// ---- IPFS-Dokument im Browser anzeigen ----
+
+const IPFS_GATEWAY_URL = "http://localhost:8080/ipfs/"; // dein lokaler Gateway
+
+async function verifierOpenProjectDocument() {
+  await loadAccounts();
+
+  const idStr = document.getElementById("verifierProjectId").value.trim();
+  if (!idStr) {
+    showMessage("warning", "Bitte zuerst ein Projekt auswählen.", "verifierMessages");
+    return;
+  }
+
+  const id = parseInt(idStr, 10);
+
+  try {
+    const p = await registry.methods.getProject(id).call();
+    const hash = p.ipfsHash;
+
+    if (!hash) {
+      showMessage("warning", "Für dieses Projekt ist kein IPFS-Hash gespeichert.", "verifierMessages");
+      return;
+    }
+
+    // Neues Tab/Fenster mit der Datei öffnen
+    const url = IPFS_GATEWAY_URL + hash;
+    window.open(url, "_blank");
+  } catch (err) {
+    console.error("Fehler beim Laden des Projekts / IPFS-Dokuments:", err);
+    showMessage("danger", "Fehler beim Öffnen des IPFS-Dokuments (Details in der Konsole).", "verifierMessages");
+  }
+}
+
+
+
+
+
 
 

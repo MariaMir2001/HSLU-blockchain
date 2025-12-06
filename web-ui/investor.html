@@ -15,6 +15,7 @@
   <div class="container-fluid">
     <a class="navbar-brand" href="#">VCM Prototype</a>
     <div class="navbar-nav">
+      <a class="nav-link" href="index.html">About BERP...</a>
       <a class="nav-link" href="owner.html">Owner</a>
       <a class="nav-link" href="creator.html">Project Creator</a>
       <a class="nav-link" href="verifier.html">Verifier</a>
@@ -31,22 +32,35 @@
           <h4 class="mb-0">Investor Dashboard</h4>
           <small>Simuliert: Hardhat accounts[3]</small>
         </div>
-        <div class="card-body">
+      <div class="card-body">
 
-          <div class="mb-3">
-            <label class="form-label" for="investorDepositAmount">Deposit amount (ETH)</label>
-            <input id="investorDepositAmount" type="text" class="form-control" placeholder="1.0">
+        <div class="mb-3">
+          <label class="form-label" for="investorAddress">Select investor address</label>
+          <select id="investorAddress" class="form-select">
+            <option disabled selected>Loading investors…</option>
+          </select>
+          <div class="form-text">
+            These are simulated Hardhat accounts acting as investors (e.g. 3, 8–11).
           </div>
-
-          <button class="btn btn-primary w-100 mb-3" onclick="investorDeposit()">
-            Deposit into Funding Pool
-          </button>
-
-          <p class="small text-muted">
-            Die eigentliche Verteilung wird vom Owner angestoßen (siehe Owner-View).
-          </p>
-
         </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="investorDepositAmount">Deposit amount (ETH)</label>
+          <input id="investorDepositAmount" type="text" class="form-control" placeholder="1.0">
+        </div>
+
+        <button class="btn btn-primary w-100 mb-3" onclick="investorDeposit()">
+          Deposit into Funding Pool
+        </button>
+
+        <p class="small text-muted">
+          The actual distribution of funds is triggered by the Owner (see Owner view).
+        </p>
+
+        <!-- Nachrichten für den Investor -->
+        <div id="verifierMessages"></div>
+      </div>
+
       </div>
     </div>
   </div>

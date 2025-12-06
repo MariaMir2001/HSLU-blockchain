@@ -15,6 +15,7 @@
   <div class="container-fluid">
     <a class="navbar-brand" href="#">VCM Prototype</a>
     <div class="navbar-nav">
+      <a class="nav-link" href="index.html">About BERP...</a>
       <a class="nav-link" href="owner.html">Owner</a>
       <a class="nav-link active" href="creator.html">Project Creator</a>
       <a class="nav-link" href="verifier.html">Verifier</a>
@@ -48,20 +49,35 @@
           </div>
         </div>
 
-          <div class="mb-3">
-            <label class="form-label" for="projIpfs">IPFS Hash</label>
-            <input id="projIpfs" type="text" class="form-control" placeholder="Qm...">
+        <div class="mb-3">
+          <label class="form-label" for="uploadFile">Projektdatei (IPFS)</label>
+          <input id="uploadFile" type="file" class="form-control">
+          <div class="form-text">
+            Die Datei wird zu IPFS hochgeladen, der Hash wird automatisch unten eingetragen.
           </div>
+        </div>
 
-          <div class="mb-3">
+        <div class="mb-3">
+          <label class="form-label" for="projIpfs">IPFS Hash</label>
+          <input id="projIpfs" type="text" class="form-control"
+                placeholder="Wird nach dem Upload gesetzt" readonly>
+        </div>
+
+
+          <!-- <div class="mb-3">
             <label class="form-label" for="projDid">SSI DID Hash</label>
             <input id="projDid" type="text" class="form-control" placeholder="did:example:123">
+          </div> -->
+          <div class="mb-3">
+            <label class="form-label" for="projDid">DID (wird automatisch gesetzt)</label>
+            <input id="projDid" type="text" class="form-control" readonly>
           </div>
+
 
           <button class="btn btn-primary w-100" onclick="creatorCreateProject()">
             Create Project
           </button>
-
+          <div id="verifierMessages"></div>
         </div>
       </div>
     </div>

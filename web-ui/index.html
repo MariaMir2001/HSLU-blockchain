@@ -1,26 +1,428 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SSI Credential Issuer and Verifier</title>
-    <link rel="stylesheet" href="css/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BERP – Best Emission Reduction Platform</title>
+
+  <!-- Custom CSS first (you can also swap order if needed) -->
+  <link rel="stylesheet" href="css/style_index.css">
+
+  <!-- Bootstrap CSS -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  >
+
+  <!-- Bootstrap Icons (for nice little icons) -->
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+  >
 </head>
-<body>
-    <div class="container">
-        <h1>HSLU Blockchain Environment</h1>
-        <p>Select a page to navigate:</p>
-        <ul>
-            <li><a href="counter.html">Counter</a></li>
-            <li><a href="crypto-wallet.html">Crypto Wallet</a></li>
-            <li><a href="ERC20.html">ERC20</a></li>
-            <li><a href="ERC721.html">ERC721</a></li>
-            <li><a href="ipfs.html">IPFS</a></li>
-            <li><a href="ssi-wallet.html">SSI Wallet</a></li>
-            <li><a href="issue.html">Issue Credential</a></li>
-            <li><a href="verify.html">Verify Credential</a></li>
-            <li><a href="createProject.html">Create Project</a></li>
+
+<body class="bg-dark text-light">
+  <!-- NAVBAR -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark bg-opacity-75 shadow-sm sticky-top">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand fw-semibold tracking-wide" href="index.html">
+        BERP <span class="text-success">Prototype</span>
+      </a>
+
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#mainNavbar"
+        aria-controls="mainNavbar"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="mainNavbar">
+        <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="index.html">
+              About BERP
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="owner.html">Owner</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="creator.html">Project Creator</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="verifier.html">Verifier</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="investor.html">Investor</a>
+          </li>
         </ul>
+      </div>
     </div>
+  </nav>
+
+  <main>
+
+    <!-- HERO + SLIDESHOW -->
+    <section id="about-berp" class="berp-hero py-5">
+      <div class="container">
+        <div class="row align-items-center g-4">
+          <!-- Hero Text -->
+          <div class="col-lg-6">
+            <span class="badge rounded-pill text-bg-success mb-3">
+              <i class="bi bi-globe2 me-1"></i>
+              Voluntary Carbon Market Prototype
+            </span>
+
+            <h1 class="display-5 fw-bold mb-3">
+              BERP – Best Emission Reduction Platform
+            </h1>
+
+            <p class="lead mb-3">
+              BERP is a blockchain-based platform for the voluntary carbon market,
+              where <strong>investors, project developers, communities and verifiers</strong>
+              jointly decide on climate projects.
+            </p>
+
+            <p class="mb-4">
+              The goal: <strong>full transparency</strong>, 
+              <strong>no double counting</strong> of emission reductions,
+              and <strong>real participation</strong> of local communities.
+            </p>
+
+            <div class="d-flex flex-wrap gap-2">
+              <a href="creator.html" class="btn btn-success btn-lg">
+                <i class="bi bi-tree me-2"></i>
+                Create a Project
+              </a>
+              <a href="#berp-architecture" class="btn btn-outline-light btn-lg">
+                <i class="bi bi-diagram-3 me-2"></i>
+                View Architecture
+              </a>
+            </div>
+
+            <div class="mt-4 d-flex flex-wrap gap-4 small text-muted">
+              <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-shield-check text-success fs-4"></i>
+                <div>
+                  <div class="fw-semibold">SSI-based identities</div>
+                  <div>Verified actors only</div>
+                </div>
+              </div>
+              <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-blockchain text-success fs-4"></i>
+                <div>
+                  <div class="fw-semibold">On-chain transparency</div>
+                  <div>Smart contracts & IPFS</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Slideshow / Carousel -->
+          <div class="col-lg-6">
+            <div id="berpCarousel" class="carousel slide berp-carousel shadow-lg rounded-4 overflow-hidden" data-bs-ride="carousel">
+              <div class="carousel-indicators">
+                <button type="button" data-bs-target="#berpCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+                <button type="button" data-bs-target="#berpCarousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
+                <button type="button" data-bs-target="#berpCarousel" data-bs-slide-to="2" aria-label="Slide 3"></button>
+              </div>
+
+              <div class="carousel-inner">
+                <div class="carousel-item active">
+                  <!-- Replace with your own image -->
+                  <img src="img/reforestation.jpg" class="d-block w-100 object-fit-cover" alt="Reforestation Project">
+                  <div class="carousel-caption d-none d-md-block text-start">
+                    <h5>Real Climate Projects</h5>
+                    <p>Reforestation, renewable energy and community-based climate action – fully traceable.</p>
+                  </div>
+                </div>
+                <div class="carousel-item">
+                  <!-- Replace with your own image -->
+                  <img src="img/co2-reduction.jpg" class="d-block w-100 object-fit-cover" alt="CO2 Impact">
+                  <div class="carousel-caption d-none d-md-block text-start">
+                    <h5>Transparent CO₂ Impact</h5>
+                    <p>CarbonFairCredits (CFC) represent 100 kg of verified CO₂ reduction per token.</p>
+                  </div>
+                </div>
+                <div class="carousel-item">
+                  <!-- Replace with your own image -->
+                  <img src="img/community.jpg" class="d-block w-100 object-fit-cover" alt="Community Participation">
+                  <div class="carousel-caption d-none d-md-block text-start">
+                    <h5>Community Participation</h5>
+                    <p>Local communities influence which projects are implemented and funded.</p>
+                  </div>
+                </div>
+              </div>
+
+              <button class="carousel-control-prev" type="button" data-bs-target="#berpCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+              </button>
+              <button class="carousel-control-next" type="button" data-bs-target="#berpCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PROBLEM & SOLUTION -->
+    <section class="py-5 bg-light text-dark">
+      <div class="container">
+        <div class="row g-4">
+          <div class="col-md-6">
+            <h2 class="h3 mb-3">What problem does BERP solve?</h2>
+            <ul class="list-group list-group-flush berp-list">
+              <li class="list-group-item bg-light">
+                <strong>Opaque money flows:</strong> buyers often do not see 
+                where their money goes and which communities really benefit.
+              </li>
+              <li class="list-group-item bg-light">
+                <strong>Manipulable information & double counting:</strong>
+                CO₂ reductions can be sold multiple times or poorly documented.
+              </li>
+              <li class="list-group-item bg-light">
+                <strong>No verified identities:</strong>
+                project developers and investors are often weakly verified.
+              </li>
+              <li class="list-group-item bg-light">
+                <strong>Communities without a voice:</strong>
+                people on the ground usually have little influence on which projects are implemented.
+              </li>
+            </ul>
+          </div>
+
+          <div class="col-md-6">
+            <h2 class="h3 mb-3">How BERP addresses this</h2>
+
+            <div class="card mb-3 shadow-sm border-0">
+              <div class="card-body">
+                <h5 class="card-title">
+                  <i class="bi bi-person-badge rounded-circle bg-success-subtle text-success p-2 me-2"></i>
+                  Self-Sovereign Identity (SSI)
+                </h5>
+                <p class="card-text">
+                  Investors, project developers, verifiers and communities receive
+                  verifiable, decentralized identities. <strong>Only verified actors</strong>
+                  can create projects or invest.
+                </p>
+              </div>
+            </div>
+
+            <div class="card mb-3 shadow-sm border-0">
+              <div class="card-body">
+                <h5 class="card-title">
+                  <i class="bi bi-file-lock2 rounded-circle bg-success-subtle text-success p-2 me-2"></i>
+                  Smart contracts & on-chain tracking
+                </h5>
+                <p class="card-text">
+                  Smart contracts manage projects, approvals and payouts. 
+                  All money flows are <strong>transparent and traceable</strong> on-chain, helping to avoid double counting.
+                </p>
+              </div>
+            </div>
+
+            <div class="card mb-3 shadow-sm border-0">
+              <div class="card-body">
+                <h5 class="card-title">
+                  <i class="bi bi-people rounded-circle bg-success-subtle text-success p-2 me-2"></i>
+                  Community participation
+                </h5>
+                <p class="card-text">
+                  Communities participate in the selection of projects. 
+                  This ensures funding for projects that <strong>really matter locally</strong>.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TECHNICAL ARCHITECTURE -->
+    <section id="berp-architecture" class="py-5 bg-white text-dark">
+      <div class="container">
+        <h2 class="h3 mb-4 text-center">How BERP works – technical view</h2>
+
+        <div class="row g-4">
+          <div class="col-md-4">
+            <div class="card h-100 shadow-sm border-0">
+              <div class="card-body">
+                <h5 class="card-title mb-3">
+                  <i class="bi bi-badge-ad rounded-circle bg-success-subtle text-success p-2 me-2"></i>
+                  1. Identities & Credentials
+                </h5>
+                <p class="card-text">
+                  In an SSI environment, identities are created and verifiable credentials are issued 
+                  (e.g. for companies, project developers, verifiers and communities).
+                  Large documents stay <strong>off-chain</strong>, and only their hashes are stored on the blockchain.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="card h-100 shadow-sm border-0">
+              <div class="card-body">
+                <h5 class="card-title mb-3">
+                  <i class="bi bi-cpu rounded-circle bg-success-subtle text-success p-2 me-2"></i>
+                  2. ProjectRegistry & FundingPool
+                </h5>
+                <p class="card-text">
+                  The <strong>ProjectRegistry smart contract</strong> manages projects: status, IPFS hash,
+                  SSI reference, and required verifier approvals.  
+                  The <strong>FundingPool smart contract</strong> collects investor deposits and
+                  distributes funds periodically to published projects.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="card h-100 shadow-sm border-0">
+              <div class="card-body">
+                <h5 class="card-title mb-3">
+                  <i class="bi bi-cloud-arrow-up rounded-circle bg-success-subtle text-success p-2 me-2"></i>
+                  3. On-chain & off-chain storage
+                </h5>
+                <p class="card-text">
+                  Documents such as PDDs or monitoring reports live in IPFS or another off-chain storage.
+                  On-chain, you mainly see:
+                </p>
+                <ul class="small">
+                  <li>Document hashes</li>
+                  <li>Project status & approvals</li>
+                  <li>Transactions & certificate references</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- CO2 PERSPECTIVE / IMPACT -->
+    <section class="py-5 bg-light text-dark">
+      <div class="container">
+        <div class="row g-4 align-items-center">
+          <div class="col-md-6">
+            <h2 class="h3 mb-3">CO₂ impact with CarbonFairCredits (CFC)</h2>
+            <p>
+              On BERP, CO₂ reductions are represented as 
+              <strong>CarbonFairCredits (CFC)</strong>:
+              <strong>1 CFC = 100 kg</strong> of verified CO₂ reduction.
+              This finer granularity allows even smaller companies to invest in high-quality projects.
+            </p>
+            <p>
+              A typical investment might be allocated as follows:
+            </p>
+            <ul>
+              <li><strong>85%</strong> directly to projects</li>
+              <li><strong>10.5%</strong> to the DAO treasury (operation & development)</li>
+              <li><strong>3%</strong> to verifiers</li>
+              <li><strong>1.5%</strong> to a community fund</li>
+            </ul>
+
+            <div class="mt-3">
+              <div class="mb-1 small text-muted">Example investment distribution</div>
+              <div class="progress berp-progress" style="height: 1.4rem;">
+                <div class="progress-bar bg-success" style="width: 85%;">Projects 85%</div>
+                <div class="progress-bar bg-dark" style="width: 10.5%;">DAO 10.5%</div>
+                <div class="progress-bar" style="width: 3%;">Verifiers 3%</div>
+                <div class="progress-bar bg-warning text-dark" style="width: 1.5%;">Community 1.5%</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6 text-center">
+            <!-- Replace with your own image e.g. impact visualization -->
+            <img src="img/co2-impact.jpg" class="img-fluid rounded-4 shadow-sm mb-3" alt="BERP Impact Visualization">
+            <p class="text-muted small">
+              Illustrative graphic: linking CO₂ reduction, community impact and transparent funding flows.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ROLES OVERVIEW -->
+    <section class="py-5 bg-white text-dark">
+      <div class="container">
+        <h2 class="h3 mb-4 text-center">Stakeholders on BERP</h2>
+        <div class="row g-4">
+          <div class="col-md-3">
+            <div class="card h-100 text-center shadow-sm border-0">
+              <div class="card-body">
+                <i class="bi bi-graph-up-arrow fs-1 text-success mb-3"></i>
+                <h5 class="card-title">Investors</h5>
+                <p class="card-text small">
+                  Purchase CFC tokens, receive certificates and transparently compensate their carbon footprint.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-3">
+            <div class="card h-100 text-center shadow-sm border-0">
+              <div class="card-body">
+                <i class="bi bi-building-check fs-1 text-success mb-3"></i>
+                <h5 class="card-title">Project Developers</h5>
+                <p class="card-text small">
+                  Design CO₂ reduction projects, upload documentation and request verification.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-3">
+            <div class="card h-100 text-center shadow-sm border-0">
+              <div class="card-body">
+                <i class="bi bi-patch-check fs-1 text-success mb-3"></i>
+                <h5 class="card-title">Verifiers</h5>
+                <p class="card-text small">
+                  Audit projects and identities (e.g. Big 4, carbon registries) and record their approvals on-chain.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-3">
+            <div class="card h-100 text-center shadow-sm border-0">
+              <div class="card-body">
+                <i class="bi bi-people fs-1 text-success mb-3"></i>
+                <h5 class="card-title">Communities</h5>
+                <p class="card-text small">
+                  Are represented by delegates, contribute voting results and influence which projects are funded.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-center mt-5">
+          <a href="creator.html" class="btn btn-success btn-lg me-2">
+            <i class="bi bi-tree me-2"></i> Start a demo project
+          </a>
+          <a href="investor.html" class="btn btn-outline-success btn-lg">
+            <i class="bi bi-currency-bitcoin me-2"></i> Explore investor flow
+          </a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Bootstrap JS -->
+  <script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
+  </script>
 </body>
 </html>
