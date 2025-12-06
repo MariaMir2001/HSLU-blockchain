@@ -13,12 +13,14 @@ app.post('/verify-credential', async (req, res) => {
     console.log('Received verification request for:', credential);
 
     try {
-        console.log(`Querying DID registry for DID: ${credential.issuedTo}`);
+        console.log(`Qquerying DID registry for DID: ${credential.issuedTo}`);
         let response;
         if (credential.registry === 'db') {
             response = await axios.get(`http://did-registry:9003/dids/db/${credential.issuedTo}`);
         } else if (credential.registry === 'blockchain') {
+            
             response = await axios.get(`http://did-registry:9003/dids/blockchain/${credential.issuedTo}`);
+            //response = await axios.get(`http://localhost:9003/dids/blockchain/${credential.issuedTo}`);
         }
         const didDocument = response.data;
         console.log('DID document found:', didDocument);

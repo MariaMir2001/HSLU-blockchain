@@ -1,4 +1,4 @@
-const registryAddress = '0x322813Fd9A801c5507c9de605d63CEA4f2CE6c44'//'0x3Aa5ebB10DC797CAC828524e59A333d0A371443c'
+const registryAddress = '0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9'//'0x3Aa5ebB10DC797CAC828524e59A333d0A371443c'
 //'0x3Aa5ebB10DC797CAC828524e59A333d0A371443c'; // Replace with your deployed contract address
 
 const express = require('express');
@@ -10,62 +10,62 @@ const app = express();
 const port = 9003;
 
 const abi = [
-	{
-		"inputs": [],
-		"stateMutability": "nonpayable",
-		"type": "constructor"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "did",
-				"type": "address"
-			}
-		],
-		"name": "deleteDID",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "did",
-				"type": "address"
-			}
-		],
-		"name": "getDID",
-		"outputs": [
-			{
-				"internalType": "string",
-				"name": "",
-				"type": "string"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "did",
-				"type": "address"
-			},
-			{
-				"internalType": "string",
-				"name": "document",
-				"type": "string"
-			}
-		],
-		"name": "setDID",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	}
-];
+    {
+      "inputs": [],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "did",
+          "type": "address"
+        }
+      ],
+      "name": "deleteDID",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "did",
+          "type": "address"
+        }
+      ],
+      "name": "getDID",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "did",
+          "type": "address"
+        },
+        {
+          "internalType": "string",
+          "name": "document",
+          "type": "string"
+        }
+      ],
+      "name": "setDID",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ];
 
 
 // Hardhat network configuration

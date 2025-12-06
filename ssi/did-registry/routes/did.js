@@ -97,31 +97,52 @@ router.post('/blockchain', async (req, res) => {
   }
 });
 
+
 // Resolve a DID Document from blockchain
 router.get('/blockchain/:did', async (req, res) => {
   const did = req.params.did;
   const { contract } = req;
 
   console.log(`Resolving DID from blockchain: ${did}`);
-  const address = did.split(':')[2];
-  if (did.startsWith('did:eth:') && isValidEthereumAddress(address)) {
-    try {
-      const document = await contract.methods.getDID(address).call();
-      if (document) {
-        return res.json(JSON.parse(document));
-      } else {
-        return res.status(404).json({ error: 'DID not found' });
-      }
-    } catch (error) {
-      console.error(`Error fetching DID from blockchain: ${error.message}`);
-      return res.status(500).json({ error: 'Error fetching DID from blockchain', details: error.message });
-    }
+
+  // Extract address from DID
+  const rawAddress = did.split(':')[2];
+
+  // Validate address
+  if (!did.startsWith('did:eth:')) {
+    console.log('Address does not start with did:eth: ');
+    //return res.status(400).send({ error: 'Address does not start with did:eth: ' });
   }
-  else {
-    console.log('Invalid DID format');
-    res.status(400).send({ error: 'Invalid DID format' });
+  if (!isValidEthereumAddress(rawAddress)) {
+    console.log('Invalid Address');
+    //return res.status(400).send({ error: 'Invalid Address' });
+  }
+
+  // Convert to checksum address
+  const checksumAddress = Web3.utils.toChecksumAddress(rawAddress);
+
+  console.log("LOG: Using address:", rawAddress);
+  console.log("LOG: Checksum:", checksumAddress);
+
+  try {
+    // Fetch DID document from blockchain
+    const document = await contract.methods.getDID(checksumAddress).call();
+    console.log(document);
+
+    if (document && document.trim() !== "") {
+      return res.json(JSON.parse(document));
+    } else {
+      return res.status(404).json({ error: 'DID not found' });
+    }
+  } catch (error) {
+    console.error(`EError fetching DID from blockchain: ${error.message}`);
+    return res.status(500).json({
+      error: 'EError fetching DID from blockchain',
+      details: error.message
+    });
   }
 });
+
 
 // Delete a DID Document from blockchain
 router.delete('/blockchain/:did', async (req, res) => {

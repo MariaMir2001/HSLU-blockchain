@@ -11,6 +11,7 @@ contract ProjectRegistry {
 
     enum ProjectStatus { Pending, Verified, Published, Ended }
 
+
     struct Project {
         uint256 id;
         string name;

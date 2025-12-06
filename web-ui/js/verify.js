@@ -48,6 +48,7 @@ document.getElementById('verify-credential').addEventListener('click', async () 
 
         const result = await response.json();
         console.log("RESUTL", result.valid);
+        //document.getElementById('verification-result').textContent = result;
         document.getElementById('verification-result').textContent = result.valid ? 'Credential is valid' : 'Credential is invalid';
     } catch (error) {
         console.error('Error verifying credential:', error);

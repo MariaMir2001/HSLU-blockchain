@@ -1,5 +1,5 @@
-const registryAddress = "0x4631BCAbD6dF18D94796344963cB60d44a4136b6"; // deployed ProjectRegistry
-const poolAddress = "0x86A2EE8FAf9A840F7a2c64CA3d51209F9A02081D"; // deployed FundingPool
+const registryAddress = "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9"; // deployed ProjectRegistry
+const poolAddress = "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707"; // deployed FundingPool
 
 // ABIs 
 const registryAbi = [
