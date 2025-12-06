@@ -7,7 +7,7 @@ pragma solidity ^0.8.19;
 contract ProjectRegistry {
     address public owner;
     uint256 public projectCount;
-    uint256 public requiredApprovals = 1;
+    uint256 public requiredApprovals = 5;
 
     enum ProjectStatus { Pending, Verified, Published, Ended }
 

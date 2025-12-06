@@ -1,5 +1,5 @@
-const registryAddress = "0x4ed7c70F96B99c776995fB64377f0d4aB3B0e1C1";   // aus logs
-const fundingPoolAddress = "0x322813Fd9A801c5507c9de605d63CEA4f2CE6c44";
+const registryAddress = "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9";   // aus logs
+const fundingPoolAddress = "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707";
 
 
 const registryAbi = [
@@ -713,17 +713,31 @@ async function loadAccounts() {
     accounts = await web3.eth.getAccounts();
 
     owner    = accounts[0];  // Owner des Systems
-    verifier = accounts[1];  // "Standard"-Verifier (Fallback)
+    verifiers = [
+      accounts[1],
+      accounts[4],
+      accounts[5],
+      accounts[6],
+      accounts[7]
+    ];
     creator  = accounts[2];  // Projekt-Ersteller
-    investor = accounts[3];  // Haupt-Investor für das einfache Demo
+    investor = [
+      accounts[3],
+      accounts[8],
+      accounts[9],
+      accounts[10],
+      accounts[11],
+    ];
+  // Haupt-Investor für das einfache Demo
 
     // fünf Verifier: Accounts 1..5
-    verifiers = accounts.slice(4, 8);
+    //verifiers = accounts.slice(4, 8);
+    
 
     // fünf Investoren: Accounts 3..7 (optional für später)
-    investors = accounts.slice(9, 13);
+    //investors = accounts.slice(9, 13);
 
-    console.log("Roles:", { owner, verifier, creator, investor, verifiers, investors });
+    console.log("Roles:", { owner, verifier, creator, investor});
   }
 }
 
@@ -975,11 +989,16 @@ console.log("Credential, das an SSI-Verifier gesendet wird:", credential);
       alert("SSI-Verifikation fehlgeschlagen – Projekt wird NICHT approved.");
       return;
     }
-
+    // 4. Wenn alles OK: on-chain approven
+    const from = getCurrentVerifierAddress();
+    if (!from) {
+      alert("Keine Verifier-Adresse ausgewählt bzw. vorhanden.");
+      return;
+    }
     // 4. Wenn alles OK: on-chain approven
     const tx = await registry.methods
       .approveProject(id)
-      .send({ from: verifier });
+      .send({from});
 
     console.log("Project approved:", tx);
     alert("Projekt ist SSI-validiert und on-chain genehmigt!");
@@ -990,6 +1009,21 @@ console.log("Credential, das an SSI-Verifier gesendet wird:", credential);
   }
 }
 
+function getCurrentVerifierAddress() {
+  const sel = document.getElementById("verifierAddress");
+  if (sel && sel.value) {
+    return sel.value;            // Adresse aus dem Dropdown
+  }
+
+  // Fallback: erster Verifier aus dem Array
+  if (verifiers && verifiers.length > 0) {
+    return verifiers[0];
+  }
+
+  return null;                    // nichts gefunden
+}
+
+
 
 
 // -------- UI-Initialisierung (Dropdowns) --------
@@ -997,6 +1031,7 @@ console.log("Credential, das an SSI-Verifier gesendet wird:", credential);
 async function initDropdowns() {
   try {
     await loadAccounts(); // lädt owner, verifier, creator, investor
+    await ensureVerifiersOnChain();  
 
     populateOwnerVerifierSelect();
     populateOwnerApprovalsSelect();
@@ -1028,6 +1063,10 @@ function populateOwnerVerifierSelect() {
     const opt = document.createElement("option");
     let role = `Account ${idx}`;
     if (idx === 1) role = "Verifier (Standard)";
+    if (idx === 4) role = "Verifier (Standard)";
+    if (idx === 5) role = "Verifier (Standard)";
+    if (idx === 6) role = "Verifier (Standard)";
+    if (idx === 7) role = "Verifier (Standard)";
     if (idx === 2) role = "Project Creator";
     if (idx === 3) role = "Investor";
 
@@ -1131,6 +1170,23 @@ function populateVerifierAddressSelect() {
     opt.textContent = `Verifier ${idx + 1} – ${addr}`;
     sel.appendChild(opt);
   });
+}
+
+// Registriert alle verifiers[] im Smart Contract (nur wenn noch nicht gesetzt)
+async function ensureVerifiersOnChain() {
+  await loadAccounts();
+
+  for (const addr of verifiers) {
+    const already = await registry.methods.isVerifier(addr).call();
+    if (!already) {
+      console.log("Adding verifier on-chain:", addr);
+      await registry.methods
+        .addVerifier(addr)
+        .send({ from: owner });  // nur Owner darf addVerifier
+    } else {
+      console.log("Already verifier:", addr);
+    }
+  }
 }
 
 
