@@ -1,0 +1,76 @@
+/* Sanftes Grün für das gesamte dApp-UI */
+
+:root {
+  --vcm-green-dark: #225b34;
+  --vcm-green: #3a7f4a;
+  --vcm-green-light: #e8f5e9;
+  --vcm-green-accent: #a5d6a7;
+}
+
+/* Hintergrund generell etwas grünlicher */
+body.bg-light {
+  background-color: var(--vcm-green-light) !important;
+}
+
+/* Navbar in sanftem Grün */
+.navbar {
+  background: linear-gradient(90deg, var(--vcm-green-dark), var(--vcm-green)) !important;
+}
+
+.navbar .navbar-brand {
+  font-weight: 600;
+}
+
+.navbar .nav-link {
+  color: #e8f5e9 !important;
+  opacity: 0.8;
+}
+
+.navbar .nav-link.active,
+.navbar .nav-link:hover {
+  opacity: 1;
+  text-decoration: underline;
+}
+
+/* Card-Styling */
+.card {
+  border-radius: 0.9rem;
+  border: 1px solid #d0e6d5;
+}
+
+.card-header.bg-primary {
+  background: var(--vcm-green) !important;
+}
+
+/* Buttons in Grün */
+.btn-primary {
+  background-color: var(--vcm-green) !important;
+  border-color: var(--vcm-green) !important;
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+  background-color: var(--vcm-green-dark) !important;
+  border-color: var(--vcm-green-dark) !important;
+}
+
+/* Success-Buttons leicht angepasst */
+.btn-success {
+  background-color: #4caf50 !important;
+  border-color: #4caf50 !important;
+}
+
+/* Kleine optische Verbesserungen */
+.form-control,
+.form-select {
+  border-radius: 0.6rem;
+}
+
+.form-text {
+  color: #4f6b58;
+}
+
+small,
+.small {
+  color: #4f6b58;
+}

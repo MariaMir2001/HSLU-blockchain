@@ -705,17 +705,28 @@ const pool     = new web3.eth.Contract(fundingPoolAbi, fundingPoolAddress);
 // 2. Rollen (Hardhat-Accounts simulieren die Stakeholder)
 let accounts;
 let owner, verifier, creator, investor;
+let verifiers = [];   // unsere 5 Verifier
+let investors = [];   // unsere 5 Investoren
 
 async function loadAccounts() {
   if (!accounts) {
     accounts = await web3.eth.getAccounts();
+
     owner    = accounts[0];  // Owner des Systems
-    verifier = accounts[1];  // Prüfer
+    verifier = accounts[1];  // "Standard"-Verifier (Fallback)
     creator  = accounts[2];  // Projekt-Ersteller
-    investor = accounts[3];  // Investor
-    console.log("Roles:", { owner, verifier, creator, investor });
+    investor = accounts[3];  // Haupt-Investor für das einfache Demo
+
+    // fünf Verifier: Accounts 1..5
+    verifiers = accounts.slice(4, 8);
+
+    // fünf Investoren: Accounts 3..7 (optional für später)
+    investors = accounts.slice(9, 13);
+
+    console.log("Roles:", { owner, verifier, creator, investor, verifiers, investors });
   }
 }
+
 
 /* ---------- OWNER-FUNKTIONEN ---------- */
 
@@ -746,10 +757,7 @@ async function ownerAddVerifier() {
 // Owner: Anzahl benötigter Approvals setzen
 async function ownerSetRequiredApprovals() {
   await loadAccounts();
-  const nStr = document.getElementById("ownerRequiredApprovals").value.trim();
-  if (!nStr) { alert("Bitte eine Zahl eingeben."); return; }
-  const n = parseInt(nStr, 10);
-  if (n <= 0) { alert("Approvals müssen > 0 sein."); return; }
+  const n = 5; // immer 5 Verifier nötig
 
   try {
     const tx = await registry.methods
@@ -757,12 +765,17 @@ async function ownerSetRequiredApprovals() {
       .send({ from: owner });
 
     console.log("Required approvals set:", tx);
-    alert("Required approvals aktualisiert.");
+
+    const sel = document.getElementById("ownerRequiredApprovals");
+    if (sel) sel.value = String(n);
+
+    alert("Required approvals wurden auf 5 gesetzt.");
   } catch (err) {
     console.error("Error in ownerSetRequiredApprovals:", err);
     alert("Fehler beim Setzen (siehe Konsole).");
   }
 }
+
 
 // Owner: Quartalsverteilung auslösen
 async function ownerDistribute() {
@@ -988,6 +1001,7 @@ async function initDropdowns() {
     populateOwnerVerifierSelect();
     populateOwnerApprovalsSelect();
     populateCreatorPayoutSelect();
+    populateVerifierAddressSelect();
     await populateVerifierProjectSelect();
 
   } catch (err) {
@@ -1026,18 +1040,18 @@ function populateOwnerVerifierSelect() {
 // Owner: Required Approvals 1..(Anzahl Accounts-1)
 function populateOwnerApprovalsSelect() {
   const sel = document.getElementById("ownerRequiredApprovals");
-  if (!sel || !accounts) return;
+  if (!sel) return;
 
   sel.innerHTML = "";
-  const max = Math.max(1, accounts.length - 1); // alle möglichen Verifier
-  for (let i = 1; i <= max; i++) {
-    const opt = document.createElement("option");
-    opt.value = String(i);
-    opt.textContent = String(i);
-    sel.appendChild(opt);
-  }
-  sel.value = "1";
+  const opt = document.createElement("option");
+  opt.value = "5";
+  opt.textContent = "5 (alle Verifier)";
+  sel.appendChild(opt);
+
+  sel.value = "5";
+  sel.disabled = true; // Fixwert 5, nicht änderbar
 }
+
 
 // Creator: Payout-Adresse (alle außer Creator selbst)
 function populateCreatorPayoutSelect() {
@@ -1097,6 +1111,28 @@ async function populateVerifierProjectSelect() {
     console.error("Fehler beim Laden der Projektliste:", err);
   }
 }
+
+// Verifier-Dashboard: Auswahl der Verifier-Adresse
+function populateVerifierAddressSelect() {
+  const sel = document.getElementById("verifierAddress");
+  if (!sel || !verifiers.length) return;
+
+  sel.innerHTML = "";
+  const ph = document.createElement("option");
+  ph.value = "";
+  ph.textContent = "Verifier auswählen…";
+  ph.disabled = true;
+  ph.selected = true;
+  sel.appendChild(ph);
+
+  verifiers.forEach((addr, idx) => {
+    const opt = document.createElement("option");
+    opt.value = addr;
+    opt.textContent = `Verifier ${idx + 1} – ${addr}`;
+    sel.appendChild(opt);
+  });
+}
+
 
 // Diese Zeile ganz am Ende von vcm.js:
 initDropdowns().catch(console.error);
