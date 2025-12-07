@@ -30,20 +30,20 @@
       <div class="card shadow-sm">
         <div class="card-header bg-primary text-white">
           <h4 class="mb-0">Verifier Dashboard</h4>
-          <small>Simuliert: Hardhat accounts[1]</small>
+          <small>Simulation: Hardhat accounts[1]</small>
         </div>
         <div class="card-body">
 
           <p class="small text-muted">
-            Der Verifier prüft eingereichte Projekte und gibt sie für die Veröffentlichung frei.
+            The verifier checks submitted projects and approves them for publication.
           </p>
       <div class="mb-3">
         <label class="form-label" for="verifierAddress">Verifier Address</label>
         <select id="verifierAddress" class="form-select">
-          <option value="">Lade Verifier…</option>
+          <option value="">Loading verifiers…</option>
         </select>
         <div class="form-text">
-          Es stehen 5 Verifier-Adressen (Hardhat accounts[1–5]) zur Auswahl.
+          There are 5 verifier addresses available (Hardhat accounts[1–5]).
         </div>
       </div>
 
@@ -51,19 +51,19 @@
       <div class="mb-3">
         <label class="form-label" for="verifierProjectId">Project</label>
         <select id="verifierProjectId" class="form-select">
-          <option value="">Lade Projekte…</option>
+          <option value="">Loading projects…</option>
         </select>
         <div class="form-text">
-          Es werden nur existierende Projekte aus der Blockchain angezeigt.
+          Only existing projects from the blockchain are displayed.
         </div>
       </div>
       <button class="btn btn-outline-secondary w-100 mt-2"
         onclick="verifierOpenProjectDocument()">
-        Projekt-Dokument auf IPFS anzeigen
+        Show project document on IPFS
       </button>
 
       <button class="btn btn-success w-100 mb-2" onclick="verifierApproveProject()">
-        Approve Project (ohne SSI-Check)
+        Approve Project (without SSI check)
       </button>
 
       <button class="btn btn-primary w-100" onclick="verifierVerifyAndApprove()">

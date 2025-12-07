@@ -1085,7 +1085,7 @@ async function investorLoadCertificates() {
 
   const investor = getCurrentInvestorAddress();
   if (!investor) {
-    showMessage("warning", "Bitte zuerst einen Investor auswählen.", "investorMessages");
+    showMessage("warning", "Please select an investor first.", "investorMessages");
     return;
   }
 
@@ -1097,7 +1097,7 @@ async function investorLoadCertificates() {
   const total = Number(totalStr);
 
   if (total === 0) {
-    listDiv.textContent = "Es wurden noch keine Zertifikate ausgegeben.";
+    listDiv.textContent = "No certificates have been issued yet.";
     return;
   }
 
@@ -1108,10 +1108,10 @@ async function investorLoadCertificates() {
   thead.innerHTML = `
     <tr>
       <th>Token ID</th>
-      <th>Projekt</th>
-      <th>Betrag (ETH)</th>
+      <th>Project</th>
+      <th>Amount (ETH)</th>
       <th>Offset (kg CO₂)</th>
-      <th>Datum</th>
+      <th>Date</th>
     </tr>
   `;
   table.appendChild(thead);
@@ -1151,7 +1151,7 @@ async function investorLoadCertificates() {
         onclick="downloadCertificatePdf({
           tokenId: ${tokenId},
           projectId: ${projectId},
-          projectLabel: '${projectId === 0 ? "Pool-Beitrag" : ("#" + projectId)}',
+          projectLabel: '${projectId === 0 ? "Pool-Contribution" : ("#" + projectId)}',
           amountEth: '${amountEth}',
           offsetKg: '${offsetKg.toFixed(2)}',
           date: '${dateStr}',
@@ -1168,7 +1168,7 @@ async function investorLoadCertificates() {
   listDiv.appendChild(table);
 
   if (!tbody.children.length) {
-    listDiv.textContent = "Dieser Investor besitzt noch keine Zertifikate.";
+    listDiv.textContent = "This investor does not own any certificates yet.";
   }
 }
 
@@ -1215,7 +1215,7 @@ async function refreshOwnerFundingOverview() {
     const poolBalanceEth = web3.utils.fromWei(poolBalanceWei, "ether");
     if (balanceSpan) balanceSpan.textContent = poolBalanceEth;
   } catch (err) {
-    console.error("Fehler beim Laden der Pool-Balance:", err);
+    console.error("Error loading pool balance:", err);
     if (balanceSpan) balanceSpan.textContent = "?";
   }
 
@@ -1229,10 +1229,10 @@ async function refreshOwnerFundingOverview() {
       toBlock: "latest",
     });
   } catch (err) {
-    console.error("Fehler beim Laden der ProjectPayout-Events:", err);
+    console.error("Error loading ProjectPayout events:", err);
     if (payoutsDiv) {
       payoutsDiv.textContent =
-        "Fehler beim Laden der Auszahlungen (Konsole ansehen).";
+        "Error loading payouts (see console).";
     }
     return;
   }
@@ -1240,7 +1240,7 @@ async function refreshOwnerFundingOverview() {
   if (!payoutEvents.length) {
     if (payoutsDiv) {
       payoutsDiv.textContent =
-        "Bisher wurden noch keine Auszahlungen an Projekte vorgenommen.";
+        "No payouts to projects have been made yet.";
     }
     if (ownerPayoutChart) {
       ownerPayoutChart.destroy();
@@ -1305,7 +1305,7 @@ async function refreshOwnerFundingOverview() {
           const p = await registry.methods.getProject(projectId).call();
           projectNames[projectId] = p.name || `Project ${projectId}`;
         } catch (err) {
-          console.error("Fehler beim getProject für", projectId, err);
+          console.error("Error in getProject for", projectId, err);
           projectNames[projectId] = `Project ${projectId}`;
         }
       }
@@ -1386,7 +1386,7 @@ async function refreshOwnerFundingOverview() {
           web3.utils.fromWei(sumComm, "ether");
       }
     } catch (err) {
-      console.error("Fehler beim Laden der FeesPaid-Events:", err);
+      console.error("Error loading FeesPaid events:", err);
     }
   }
 }
@@ -1478,7 +1478,7 @@ async function creatorCreateProject() {
   const ipfs   = document.getElementById("projIpfs").value.trim();
 
   if (!name || !payout || !ipfs) {
-    showMessage("warning", "Bitte alle Felder ausfüllen.");
+    showMessage("warning", "Please fill in all fields.");
     return;
   }
 
@@ -1537,7 +1537,7 @@ const tx = await registry.methods
 
     console.log("Project created (with SSI ref):", tx);
     //alert("Projekt mit SSI-Referenz erstellt! Tx: " + tx.transactionHash);
-    showMessage("success", "Projekt mit SSI-Referenz erstellt! Tx: " + tx.transactionHash);
+    showMessage("success", "Project created with SSI reference! Tx: " + tx.transactionHash);
 
   } catch (err) {
     console.error("Error creating project with SSI:", err);
@@ -1555,7 +1555,7 @@ async function verifierApproveProject() {
   await loadAccounts();
 
   const idStr = document.getElementById("verifierProjectId").value.trim();
-  if (!idStr) { showMessage("warning", "Bitte eine Projekt-ID eingeben."); return; }
+  if (!idStr) { showMessage("warning", "Please enter a project ID."); return; }
   const id = parseInt(idStr, 10);
 
   try {
@@ -1564,10 +1564,10 @@ async function verifierApproveProject() {
       .send({ from: verifier });
 
     console.log("Project approved:", tx);
-    showMessage("success", "Projekt genehmigt.");
+    showMessage("success", "Project approved.");
   } catch (err) {
     console.error("Error approving project:", err);
-    showMessage("danger", "Fehler beim Approve (siehe Konsole).");
+    showMessage("danger", "Error during approval (see console).");
   }
 }
 
@@ -1580,13 +1580,13 @@ async function investorDeposit() {
 
   const from = getCurrentInvestorAddress();
   if (!from) {
-    showMessage("warning", "Bitte zuerst einen Investor auswählen.", "investorMessages");
+    showMessage("warning", "Please select an investor first.", "investorMessages");
     return;
   }
 
   const amountStr = document.getElementById("investorDepositAmount").value.trim();
   if (!amountStr) {
-    showMessage("warning", "Bitte einen Betrag eingeben.", "investorMessages");
+    showMessage("warning", "Please enter an amount.", "investorMessages");
     return;
   }
 
@@ -1598,10 +1598,10 @@ async function investorDeposit() {
       .send({ from, value: valueWei });
 
     console.log("Deposit:", tx);
-    showMessage("success", "Deposit erfolgreich.", "investorMessages");
+    showMessage("success", "Deposit successful.", "investorMessages");
   } catch (err) {
     console.error("Error depositing:", err);
-    showMessage("danger", "Fehler beim Deposit (siehe Konsole).", "investorMessages");
+    showMessage("danger", "Error during deposit (see console).", "investorMessages");
   }
 }
 
@@ -1613,7 +1613,7 @@ async function verifierVerifyAndApprove() {
 
   const idStr = document.getElementById("verifierProjectId").value.trim();
   if (!idStr) {
-    showMessage("warning", "Bitte ein Projekt auswählen.");
+    showMessage("warning", "Please select a project.");
     return;
   }
   const id = parseInt(idStr, 10);
@@ -1622,14 +1622,14 @@ async function verifierVerifyAndApprove() {
     // --- 0. Adresse des Verifiers ---
     const from = getCurrentVerifierAddress();
     if (!from) {
-      showMessage("warning", "Keine Verifier-Adresse ausgewählt.");
+      showMessage("warning", "No verifier address selected.");
       return;
     }
 
     // --- 1. Prüfen, ob Verifier dieses Projekt schon approved hat ---
     const already = await registry.methods.hasApproved(id, from).call();
     if (already) {
-      showMessage("info", "Du hast dieses Projekt bereits genehmigt.");
+      showMessage("info", "You have already approved this project.");
       return; // KEIN Transaktionsversuch → kein Revert
     }
 
@@ -1642,13 +1642,13 @@ async function verifierVerifyAndApprove() {
     if (status !== 0) { // nicht Pending
       showMessage(
         "info",
-        "Dieses Projekt ist nicht mehr im Pending-Status (bereits veröffentlicht oder beendet)."
+        "This project is no longer in the Pending status (already published or ended)."
       );
       return;
     }
 
     if (!ssiRef) {
-      showMessage("warning", "Dieses Projekt hat keine SSI-Referenz.");
+      showMessage("warning", "This project has no SSI reference.");
       return;
     }
 
@@ -1657,7 +1657,7 @@ async function verifierVerifyAndApprove() {
     const credential = stored[ssiRef];
 
     if (!credential) {
-      showMessage("warning", "Kein Credential zu dieser SSI-Referenz im Browser-Speicher.");
+      showMessage("warning", "No credential for this SSI reference in browser storage.");
       return;
     }
 
@@ -1670,7 +1670,7 @@ async function verifierVerifyAndApprove() {
     if (!res.ok) {
       const text = await res.text();
       console.error("Verifier HTTP error:", res.status, text);
-      showMessage("danger", "Fehler beim SSI-Check (siehe Konsole).");
+      showMessage("danger", "Error during SSI check (see console).");
       return;
     }
 
@@ -1678,24 +1678,24 @@ async function verifierVerifyAndApprove() {
     console.log("SSI verify result:", result);
 
     if (!result.valid) {
-      showMessage("warning", "SSI-Verifikation fehlgeschlagen – Projekt wird NICHT approved.");
+      showMessage("warning", "SSI verification failed – project will NOT be approved.");
       return;
     }
 
-    // --- 4. Jetzt erst die on-chain Transaktion senden ---
+ 
     const tx = await registry.methods
       .approveProject(id)
       .send({ from });
 
     console.log("Project approved:", tx);
-    showMessage("success", "Projekt ist SSI-validiert und on-chain genehmigt!");
+    showMessage("success", "Project is SSI-validated and approved on-chain!");
 
-    // Dropdown aktualisieren, damit Approvals-Zähler/✓ sofort passen
+    // Update dropdown to immediately reflect approval count/checkmarks
     await populateVerifierProjectSelect();
 
   } catch (err) {
-    console.error("Unerwarteter Fehler in verifierVerifyAndApprove:", err);
-    showMessage("danger", "Unerwarteter Fehler beim Verifizieren/Approven.");
+    console.error("Unexpected error in verifierVerifyAndApprove:", err);
+    showMessage("danger", "Unexpected error during verification/approval.");
   }
 }
 
@@ -1759,7 +1759,7 @@ async function initDropdowns() {
     refreshOwnerFundingOverview().catch(console.error);
 
   } catch (err) {
-    console.error("Fehler bei initDropdowns:", err);
+    console.error("Error in initDropdowns:", err);
   }
 }
 
@@ -1771,7 +1771,7 @@ function populateOwnerVerifierSelect() {
   sel.innerHTML = "";
   const ph = document.createElement("option");
   ph.value = "";
-  ph.textContent = "Adresse auswählen…";
+  ph.textContent = "Select address…";
   ph.disabled = true;
   ph.selected = true;
   sel.appendChild(ph);
@@ -1803,7 +1803,7 @@ function populateOwnerApprovalsSelect() {
   sel.innerHTML = "";
   const opt = document.createElement("option");
   opt.value = "5";
-  opt.textContent = "5 (alle Verifier)";
+  opt.textContent = "5 (all Verifiers)";
   sel.appendChild(opt);
 
   sel.value = "5";
@@ -1819,7 +1819,7 @@ function populateCreatorPayoutSelect() {
   sel.innerHTML = "";
   const ph = document.createElement("option");
   ph.value = "";
-  ph.textContent = "Adresse auswählen…";
+  ph.textContent = "Choose address…";
   ph.disabled = true;
   ph.selected = true;
   sel.appendChild(ph);
@@ -1855,7 +1855,7 @@ async function populateVerifierProjectSelect() {
     ph.disabled = true;
     ph.selected = true;
     ph.textContent =
-      count === 0 ? "Noch keine Projekte vorhanden" : "Projekt auswählen…";
+      count === 0 ? "No projects available yet" : "Select project…";
     sel.appendChild(ph);
 
     for (let id = 1; id <= count; id++) {
@@ -1875,7 +1875,7 @@ async function populateVerifierProjectSelect() {
       sel.appendChild(opt);
     }
   } catch (err) {
-    console.error("Fehler beim Laden der Projektliste:", err);
+    console.error("Error loading project list:", err);
   }
 }
 
@@ -1888,7 +1888,7 @@ function populateVerifierAddressSelect() {
   sel.innerHTML = "";
   const ph = document.createElement("option");
   ph.value = "";
-  ph.textContent = "Verifier auswählen…";
+  ph.textContent = "Select verifier…";
   ph.disabled = true;
   ph.selected = true;
   sel.appendChild(ph);
@@ -1909,7 +1909,7 @@ function populateInvestorAddressSelect() {
   sel.innerHTML = "";
   const ph = document.createElement("option");
   ph.value = "";
-  ph.textContent = "Investor auswählen…";
+  ph.textContent = "Select investor…";
   ph.disabled = true;
   ph.selected = true;
   sel.appendChild(ph);
@@ -2004,7 +2004,7 @@ async function uploadFileToIpfs(file) {
   if (data.cid) return data.cid.toString();
   if (data.Cid && data.Cid["/"]) return data.Cid["/"];
 
-  throw new Error("Konnte IPFS-Hash in Antwort nicht finden: " + text);
+  throw new Error("Could not find IPFS hash in response: " + text);
 }
 
 function initIpfsUpload() {
@@ -2019,21 +2019,21 @@ function initIpfsUpload() {
     if (!file) return;
 
     try {
-      showMessage("info", "Lade Datei zu IPFS hoch …", "creatorMessages");
+      showMessage("info", "Uploading file to IPFS …", "creatorMessages");
 
       const hash = await uploadFileToIpfs(file);
 
       ipfsInput.value = hash;
       showMessage(
         "success",
-        "Datei erfolgreich auf IPFS hochgeladen. Hash: " + hash,
+        "File successfully uploaded to IPFS. Hash: " + hash,
         "creatorMessages"
       );
     } catch (err) {
-      console.error("Fehler beim IPFS-Upload:", err);
+      console.error("Error during IPFS upload:", err);
       showMessage(
         "danger",
-        "Fehler beim IPFS-Upload (Details in der Konsole).",
+        "Error during IPFS upload (details in console).",
         "creatorMessages"
       );
     }
@@ -2072,7 +2072,7 @@ function downloadCertificatePdf(cert) {
 
   // --- Abschnittstitel ---
   doc.setFont("helvetica", "bold");
-  doc.text("Zertifikatsdetails", 20, y);
+  doc.text("Certificate Details", 20, y);
   doc.setLineWidth(0.3);
   doc.line(20, y + 2, pageWidth - 20, y + 2);
   y += 10;
@@ -2087,17 +2087,17 @@ function downloadCertificatePdf(cert) {
   // --- Detailzeilen ---
   doc.text(`Token ID: ${cert.tokenId}`, 20, y); y += 8;
   doc.text(`Investor: ${cert.owner}`, 20, y); y += 8;
-  doc.text(`Projekt: ${cert.projectLabel}`, 20, y); y += 8;
-  doc.text(`Betrag: ${amountStr} ETH`, 20, y); y += 8;
+  doc.text(`Project: ${cert.projectLabel}`, 20, y); y += 8;
+  doc.text(`Amount: ${amountStr} ETH`, 20, y); y += 8;
   doc.text(`Offset: ${offsetStr} kg CO2`, 20, y); y += 8;  // KEIN Sonderzeichen
-  doc.text(`Datum: ${cert.date}`, 20, y); y += 20;
+  doc.text(`Date: ${cert.date}`, 20, y); y += 20;
 
   // --- Erklärungstext / Footer ---
   doc.setFont("helvetica", "italic");
   const disclaimer =
-    "Dieses Zertifikat bestätigt die Einbringung von Mitteln in den VCM Funding Pool. " +
-    "Die tatsächliche Verbindlichkeit ergibt sich aus dem Eintrag des " +
-    "InvestmentCertificate-Smart-Contracts auf der Blockchain.";
+    "This certificate confirms the contribution of funds to the VCM Funding Pool. " +
+    "The actual liability arises from the entry of the " +
+    "InvestmentCertificate smart contract on the blockchain.";
 
   doc.text(disclaimer, 20, y, { maxWidth: pageWidth - 40 });
 
@@ -2125,7 +2125,7 @@ async function verifierOpenProjectDocument() {
 
   const idStr = document.getElementById("verifierProjectId").value.trim();
   if (!idStr) {
-    showMessage("warning", "Bitte zuerst ein Projekt auswählen.", "verifierMessages");
+    showMessage("warning", "Please select a project first.", "verifierMessages");
     return;
   }
 
@@ -2136,16 +2136,16 @@ async function verifierOpenProjectDocument() {
     const hash = p.ipfsHash;
 
     if (!hash) {
-      showMessage("warning", "Für dieses Projekt ist kein IPFS-Hash gespeichert.", "verifierMessages");
+      showMessage("warning", "No IPFS hash stored for this project.", "verifierMessages");
       return;
     }
 
-    // Neues Tab/Fenster mit der Datei öffnen
+    // Open new tab/window with the file
     const url = IPFS_GATEWAY_URL + hash;
     window.open(url, "_blank");
   } catch (err) {
-    console.error("Fehler beim Laden des Projekts / IPFS-Dokuments:", err);
-    showMessage("danger", "Fehler beim Öffnen des IPFS-Dokuments (Details in der Konsole).", "verifierMessages");
+    console.error("Error loading project / IPFS document:", err);
+    showMessage("danger", "Error opening IPFS document (details in console).", "verifierMessages");
   }
 }
 

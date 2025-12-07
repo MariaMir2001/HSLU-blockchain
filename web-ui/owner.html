@@ -30,19 +30,19 @@
       <div class="card shadow-sm">
         <div class="card-header bg-primary text-white">
           <h4 class="mb-0">Owner Dashboard</h4>
-          <small>Simuliert: Hardhat accounts[0]</small>
+          <small>Simulation: Hardhat accounts[0]</small>
         </div>
         <div class="card-body">
 
-        <!-- 1. Verifier hinzufügen -->
-        <h5 class="card-title">1. Verifier hinzufügen</h5>
+        <!-- 1. Add Verifier -->
+        <h5 class="card-title">1. Add Verifier</h5>
         <div class="mb-3">
           <label for="ownerVerifierAddress" class="form-label">Verifier Address</label>
           <select id="ownerVerifierAddress" class="form-select">
-            <option value="">Lade Adressen…</option>
+            <option value="">Loading addresses…</option>
           </select>
           <div class="form-text">
-            Es werden alle Accounts außer dem Owner angezeigt.
+            All accounts except the owner are displayed.
           </div>
         </div>
         <button class="btn btn-primary w-100 mb-4" onclick="ownerAddVerifier()">
@@ -62,8 +62,8 @@
         </button>
 
 
-          <h5 class="card-title">3. Quartals-Verteilung</h5>
-          <p class="small text-muted">Verteilt den aktuellen Pool-Balance anteilig an alle veröffentlichten Projekte.</p>
+          <h5 class="card-title">3. Quarterly Distribution</h5>
+          <p class="small text-muted">Distributes the current pool balance proportionally to all published projects.</p>
           <button class="btn btn-success w-100" onclick="ownerDistribute()">
             Simulate Quarter Distribution
           </button>
