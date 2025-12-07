@@ -1,12 +1,22 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
+// Minimales Interface, damit FundingPool den Zertifikats-Contract ansprechen kann
+//interface InvestmentCertificate {
+//    function mintCertificate(
+//        address to,
+//        uint256 projectId,
+//        uint256 amountWei
+//    ) external returns (uint256);
+//}
+
 /// ---------------------------
 /// ProjectRegistry (MVP + Ended Status)
 /// ---------------------------
 contract ProjectRegistry {
     address public owner;
     uint256 public projectCount;
+    ProjectRegistry public registry;
     uint256 public requiredApprovals = 5;
 
     enum ProjectStatus { Pending, Verified, Published, Ended }
@@ -168,9 +178,12 @@ abstract contract ReentrancyGuard {
 /// ---------------------------
 /// FundingPool (MVP + Ended Check)
 /// ---------------------------
+import "./InvestmentCertificate.sol";
 contract FundingPool is ReentrancyGuard {
+    
     address public owner;
     ProjectRegistry public registry;
+    InvestmentCertificate public certificate;
 
     uint256 public poolBalance;//:)wei retained for distribution.
 
@@ -193,10 +206,12 @@ contract FundingPool is ReentrancyGuard {
         _;
     }
 
-    constructor(address registryAddress) {
+    constructor(address registryAddress, address certificateAddress) {
         owner = msg.sender;
         require(registryAddress != address(0), "invalid registry");
         registry = ProjectRegistry(registryAddress);
+        require(certificateAddress != address(0), "zero cert");
+        certificate = InvestmentCertificate(certificateAddress);
 
         // default fee recipients set to owner for MVP
         feeRecipientTreasury = owner;
@@ -228,6 +243,16 @@ contract FundingPool is ReentrancyGuard {
         feeCommunityBP = communityBP;
     }
 
+    ///function setInvestmentCertificate(address cert) external onlyOwner {
+    ///    require(cert != address(0), "zero cert");
+    ///    investmentCertificate = IInvestmentCertificate(cert);
+    ///}
+    function setCertificate(address _certificate) external onlyOwner {
+        require(_certificate != address(0), "zero cert");
+        certificate = InvestmentCertificate(_certificate);
+    }
+
+
     function deposit() external payable nonReentrant {
         require(msg.value > 0, "no eth sent");
         uint256 incoming = msg.value;
@@ -247,6 +272,10 @@ contract FundingPool is ReentrancyGuard {
 
         emit FeesPaid(treasuryAmt, verifiersAmt, communityAmt);
         emit Deposit(msg.sender, incoming, net);
+
+        if (address(certificate) != address(0)) {
+            certificate.mintCertificate(msg.sender, 0, net);
+        }
     }
 
     function simulateQuarterDistribute() external onlyOwner nonReentrant {

@@ -1,6 +1,6 @@
-const registryAddress = "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9";   // aus logs
-const fundingPoolAddress = "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707";
-
+const registryAddress = "0xF32D39ff9f6Aa7a7A64d7a4F00a54826Ef791a55";   // aus logs
+const fundingPoolAddress = "0x99dBE4AEa58E518C50a1c04aE9b48C9F6354612f";
+const certificateAddress = "0xd6e1afe5cA8D00A2EFC01B89997abE2De47fdfAf";
 
 const registryAbi = [
     {
@@ -690,6 +690,343 @@ const fundingPoolAbi = [     {
       "type": "receive"
     } ];
 
+
+const certificateAbi = [
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "_name",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_symbol",
+				"type": "string"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "owner",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "approved",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256"
+			}
+		],
+		"name": "Approval",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "from",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "to",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256"
+			}
+		],
+		"name": "Transfer",
+		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "to",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256"
+			}
+		],
+		"name": "approve",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "account",
+				"type": "address"
+			}
+		],
+		"name": "balanceOf",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "certificates",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "projectId",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "amountWei",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "timestamp",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "fundingPool",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256"
+			}
+		],
+		"name": "getApproved",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256"
+			}
+		],
+		"name": "getCertificate",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "certOwner",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "projectId",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "amountWei",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "timestamp",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "to",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "projectId",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "amountWei",
+				"type": "uint256"
+			}
+		],
+		"name": "mintCertificate",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "name",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "owner",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256"
+			}
+		],
+		"name": "ownerOf",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_fundingPool",
+				"type": "address"
+			}
+		],
+		"name": "setFundingPool",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "symbol",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "totalSupply",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "from",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "to",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256"
+			}
+		],
+		"name": "transferFrom",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	}
+];
 // Adressen hast du schon:
 /// const registryAddress = "...";
 /// const fundingPoolAddress = "...";
@@ -701,6 +1038,8 @@ const web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
 
 const registry = new web3.eth.Contract(registryAbi, registryAddress);
 const pool     = new web3.eth.Contract(fundingPoolAbi, fundingPoolAddress);
+const certificate = new web3.eth.Contract(certificateAbi, certificateAddress);
+
 
 // 2. Rollen (Hardhat-Accounts simulieren die Stakeholder)
 let accounts;
@@ -740,6 +1079,99 @@ async function loadAccounts() {
     console.log("Roles:", { owner, verifier, creator, investor});
   }
 }
+
+async function investorLoadCertificates() {
+  await loadAccounts();
+
+  const investor = getCurrentInvestorAddress();
+  if (!investor) {
+    showMessage("warning", "Bitte zuerst einen Investor auswählen.", "investorMessages");
+    return;
+  }
+
+  const listDiv = document.getElementById("investorCertificates");
+  if (!listDiv) return;
+  listDiv.innerHTML = "";
+
+  const totalStr = await certificate.methods.totalSupply().call();
+  const total = Number(totalStr);
+
+  if (total === 0) {
+    listDiv.textContent = "Es wurden noch keine Zertifikate ausgegeben.";
+    return;
+  }
+
+  const table = document.createElement("table");
+  table.className = "table table-sm";
+
+  const thead = document.createElement("thead");
+  thead.innerHTML = `
+    <tr>
+      <th>Token ID</th>
+      <th>Projekt</th>
+      <th>Betrag (ETH)</th>
+      <th>Offset (kg CO₂)</th>
+      <th>Datum</th>
+    </tr>
+  `;
+  table.appendChild(thead);
+
+  const tbody = document.createElement("tbody");
+
+  for (let tokenId = 1; tokenId <= total; tokenId++) {
+    let owner;
+    try {
+      owner = await certificate.methods.ownerOf(tokenId).call();
+    } catch {
+      continue; // überspringen, falls Token nicht existiert
+    }
+
+    if (owner.toLowerCase() !== investor.toLowerCase()) continue;
+
+    const cert = await certificate.methods.getCertificate(tokenId).call();
+    const projectId = Number(cert.projectId ?? cert[1]);
+    const amountWei = cert.amountWei ?? cert[2];
+    const ts        = Number(cert.timestamp ?? cert[3]);
+
+    const amountEth = web3.utils.fromWei(amountWei, "ether");
+
+    // einfache Demo: 1 ETH = 100 kg CO₂
+    
+    const offsetKg = Number(amountEth) * 100;
+    const dateStr = new Date(ts * 1000).toLocaleString();
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${tokenId}</td>
+      <td>${projectId === 0 ? "Pool-Beitrag" : "#" + projectId}</td>
+      <td>${amountEth}</td>
+      <td>${offsetKg.toFixed(2)}</td>
+      <td>${dateStr}</td>
+      <td>
+      <button class="btn btn-sm btn-outline-secondary"
+        onclick="downloadCertificatePdf({
+          tokenId: ${tokenId},
+          projectId: ${projectId},
+          projectLabel: '${projectId === 0 ? "Pool-Beitrag" : ("#" + projectId)}',
+          amountEth: '${amountEth}',
+          offsetKg: '${offsetKg.toFixed(2)}',
+          date: '${dateStr}',
+          owner: '${investor}'
+        })">
+        Download
+      </button>
+    </td>
+    `;
+    tbody.appendChild(tr);
+  }
+
+  table.appendChild(tbody);
+  listDiv.appendChild(table);
+
+  if (!tbody.children.length) {
+    listDiv.textContent = "Dieser Investor besitzt noch keine Zertifikate.";
+  }
+}
+
 
 
 /* ---------- OWNER-FUNKTIONEN ---------- */
@@ -1509,6 +1941,8 @@ async function ensureVerifiersOnChain() {
 }
 
 
+
+
 // Diese Zeile ganz am Ende von vcm.js:
 initDropdowns().catch(console.error);
 
@@ -1605,6 +2039,82 @@ function initIpfsUpload() {
     }
   });
 }
+
+function downloadCertificatePdf(cert) {
+  const { jsPDF } = window.jspdf;
+
+  // A4 hochkant
+  const doc = new jsPDF({
+    orientation: "portrait",
+    unit: "mm",
+    format: "a4",
+  });
+
+  const pageWidth = doc.internal.pageSize.getWidth();
+
+  // --- Header-Balken ---
+  doc.setFillColor(34, 139, 34); // dunkelgrün
+  doc.rect(0, 0, pageWidth, 30, "F");
+
+  doc.setTextColor(255, 255, 255);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(20);
+  doc.text("VCM Investment Certificate", pageWidth / 2, 18, {
+    align: "center",
+  });
+
+  // zurück zu normalem Text
+  doc.setTextColor(0, 0, 0);
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(12);
+
+  let y = 45;
+
+  // --- Abschnittstitel ---
+  doc.setFont("helvetica", "bold");
+  doc.text("Zertifikatsdetails", 20, y);
+  doc.setLineWidth(0.3);
+  doc.line(20, y + 2, pageWidth - 20, y + 2);
+  y += 10;
+  doc.setFont("helvetica", "normal");
+
+  // Werte sicher parsen
+  const amountEth = parseFloat(cert.amountEth);
+  const offsetKg = amountEth * 100; // dein Faktor für CO2
+  const amountStr = isNaN(amountEth) ? cert.amountEth : amountEth.toFixed(4);
+  const offsetStr = isNaN(offsetKg) ? "-" : offsetKg.toFixed(2);
+
+  // --- Detailzeilen ---
+  doc.text(`Token ID: ${cert.tokenId}`, 20, y); y += 8;
+  doc.text(`Investor: ${cert.owner}`, 20, y); y += 8;
+  doc.text(`Projekt: ${cert.projectLabel}`, 20, y); y += 8;
+  doc.text(`Betrag: ${amountStr} ETH`, 20, y); y += 8;
+  doc.text(`Offset: ${offsetStr} kg CO2`, 20, y); y += 8;  // KEIN Sonderzeichen
+  doc.text(`Datum: ${cert.date}`, 20, y); y += 20;
+
+  // --- Erklärungstext / Footer ---
+  doc.setFont("helvetica", "italic");
+  const disclaimer =
+    "Dieses Zertifikat bestätigt die Einbringung von Mitteln in den VCM Funding Pool. " +
+    "Die tatsächliche Verbindlichkeit ergibt sich aus dem Eintrag des " +
+    "InvestmentCertificate-Smart-Contracts auf der Blockchain.";
+
+  doc.text(disclaimer, 20, y, { maxWidth: pageWidth - 40 });
+
+  // Optional: kleine Footer-Zeile mit Contract / Chain
+  if (cert.contractAddress && cert.chainName) {
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "normal");
+    doc.text(
+      `Chain: ${cert.chainName} – Contract: ${cert.contractAddress}`,
+      20,
+      290
+    );
+  }
+
+  doc.save(`vcm_certificate_${cert.tokenId}.pdf`);
+}
+
 
 // ---- IPFS-Dokument im Browser anzeigen ----
 

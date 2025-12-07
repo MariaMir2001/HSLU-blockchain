@@ -38,6 +38,12 @@ async function main() {
     const fundingPool = await FundingPool.deploy(projectRegistry.address);
     await fundingPool.deployed();
     console.log("FundingPool deployed to:", fundingPool.address);
+
+
+      // 4) Zertifikat erfährt, wer der FundingPool ist
+  const tx = await certificate.setFundingPool(fundingPool.address);
+  await tx.wait();
+  console.log("FundingPool set as certificate.fundingPool");
 }
 
 main()

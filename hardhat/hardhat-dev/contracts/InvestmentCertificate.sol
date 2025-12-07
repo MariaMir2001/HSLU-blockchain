@@ -2,7 +2,7 @@
 pragma solidity ^0.8.19;
 
 /// @title InvestmentCertificate
-/// @notice Simple ERC721‑like certificate NFT for proof of investment in projects
+/// @notice Simple ERC721-like certificate NFT for proof of investment in projects
 contract InvestmentCertificate {
     // Basic ERC721 events
     event Transfer(address indexed from, address indexed to, uint256 indexed tokenId);
@@ -11,24 +11,20 @@ contract InvestmentCertificate {
     string public name;
     string public symbol;
 
-    address public owner;            // contract owner (can set funding pool)
-    address public fundingPool;      // FundingPool contract allowed to mint
+    address public owner;        // contract owner (can set funding pool)
+    address public fundingPool;  // FundingPool contract allowed to mint
 
     uint256 public totalSupply;
 
     struct CertificateData {
-        uint256 projectId;           // ID of the project in ProjectRegistry
-        uint256 amountWei;           // amount of the investor’s contribution (or allocated share)
-        uint256 timestamp;           // time of mint
+        uint256 projectId;   // ID of the project in ProjectRegistry (0 = Pool-Beitrag)
+        uint256 amountWei;   // amount of the investor’s contribution (or allocated share)
+        uint256 timestamp;   // time of mint
     }
 
-    // tokenId => owner
     mapping(uint256 => address) private _owners;
-    // owner => balance
     mapping(address => uint256) private _balances;
-    // tokenId => approved address
     mapping(uint256 => address) private _tokenApprovals;
-    // tokenId => certificate data
     mapping(uint256 => CertificateData) public certificates;
 
     modifier onlyOwner() {
@@ -53,7 +49,7 @@ contract InvestmentCertificate {
         fundingPool = _fundingPool;
     }
 
-    /// --------- ERC721 minimal view functions ---------
+    // --- ERC721-minimal view functions ---
 
     function balanceOf(address account) external view returns (uint256) {
         require(account != address(0), "zero address");
@@ -71,7 +67,7 @@ contract InvestmentCertificate {
         return _tokenApprovals[tokenId];
     }
 
-    /// --------- Core internal mint/transfer logic ---------
+    // --- Core internal mint/transfer logic ---
 
     function _exists(uint256 tokenId) internal view returns (bool) {
         return _owners[tokenId] != address(0);
@@ -91,7 +87,6 @@ contract InvestmentCertificate {
         require(ownerOf(tokenId) == from, "not owner");
         require(to != address(0), "transfer to zero");
 
-        // clear approval
         _approve(address(0), tokenId);
 
         _balances[from] -= 1;
@@ -106,7 +101,7 @@ contract InvestmentCertificate {
         emit Approval(ownerOf(tokenId), to, tokenId);
     }
 
-    /// --------- Public transfer/approve (optional for MVP) ---------
+    // --- optional transfer/approve (für MVP kannst du sie auch sperren) ---
 
     function approve(address to, uint256 tokenId) external {
         address tokenOwner = ownerOf(tokenId);
@@ -123,17 +118,14 @@ contract InvestmentCertificate {
         _transfer(from, to, tokenId);
     }
 
-    /// --------- Certificate minting ---------
+    // --- Certificate minting ---
 
-    /// @notice Mint a new investment certificate NFT to to
-    /// @dev Can only be called by FundingPool after allocation to a project
     function mintCertificate(
         address to,
-        uint256 projectId,
+        uint256 projectId,  // 0 = Pool-Beitrag
         uint256 amountWei
     ) external onlyFundingPool returns (uint256) {
         require(to != address(0), "zero address");
-        require(projectId > 0, "invalid project");
         require(amountWei > 0, "amount must be > 0");
 
         totalSupply += 1;
@@ -149,7 +141,6 @@ contract InvestmentCertificate {
         return newId;
     }
 
-    /// @notice convenience getter for full certificate info
     function getCertificate(uint256 tokenId)
         external
         view
@@ -165,5 +156,5 @@ contract InvestmentCertificate {
         projectId = data.projectId;
         amountWei = data.amountWei;
         timestamp = data.timestamp;
-    }
+    }
 }
