@@ -756,23 +756,28 @@ function labelForInvestor(addr) {
       (a) => a.toLowerCase() === addr.toLowerCase()
     );
     if (idx !== -1) {
-      return `Investor ${idx + 1} (${shortAddress(addr)})`;
+      return shortAddress(addr);;
     }
   }
-  return shortAddress(addr);
+  return shortAddress(addr); // show address instead of "—"
 }
+
 
 let ownerPayoutChart = null;
 
 async function refreshOwnerFundingOverview() {
-  // Wenn wir nicht auf der Owner-Seite sind, einfach leise beenden
-  const balanceSpan = document.getElementById("ownerPoolBalance");
-  const payoutsDiv  = document.getElementById("ownerPayouts");
-  const pieCanvas   = document.getElementById("ownerPayoutPie");
+  const balanceSpan        = document.getElementById("ownerPoolBalance");
+  const totalDistSpan      = document.getElementById("ownerTotalDistributed");
+  const feesTreasurySpan   = document.getElementById("ownerFeesTreasury");
+  const feesVerifiersSpan  = document.getElementById("ownerFeesVerifiers");
+  const feesCommunitySpan  = document.getElementById("ownerFeesCommunity");
+  const payoutsDiv         = document.getElementById("ownerPayouts");
+  const pieCanvas          = document.getElementById("ownerPayoutPie");
 
-  if (!balanceSpan && !payoutsDiv && !pieCanvas) return;
+  // if we’re not on the owner page, silently do nothing
+  if (!balanceSpan && !payoutsDiv && !pieCanvas && !totalDistSpan) return;
 
-  // 1. Pool-Balance laden
+  // --- 1. current pool balance ---
   try {
     const poolBalanceWei = await pool.methods.poolBalance().call();
     const poolBalanceEth = web3.utils.fromWei(poolBalanceWei, "ether");
@@ -782,86 +787,176 @@ async function refreshOwnerFundingOverview() {
     if (balanceSpan) balanceSpan.textContent = "?";
   }
 
-  // 2. ProjectPayout-Events laden
-  if (!payoutsDiv) return;
+  // --- 2. load all ProjectPayout events ---
+  if (!payoutsDiv && !pieCanvas && !totalDistSpan) return;
 
-  let events;
+  let payoutEvents;
   try {
-    events = await pool.getPastEvents("ProjectPayout", {
+    payoutEvents = await pool.getPastEvents("ProjectPayout", {
       fromBlock: 0,
       toBlock: "latest",
     });
   } catch (err) {
     console.error("Fehler beim Laden der ProjectPayout-Events:", err);
-    payoutsDiv.textContent = "Fehler beim Laden der Auszahlungen (Konsole ansehen).";
+    if (payoutsDiv) {
+      payoutsDiv.textContent =
+        "Fehler beim Laden der Auszahlungen (Konsole ansehen).";
+    }
     return;
   }
 
-  if (!events.length) {
-    payoutsDiv.textContent = "Bisher wurden noch keine Auszahlungen an Projekte vorgenommen.";
+  if (!payoutEvents.length) {
+    if (payoutsDiv) {
+      payoutsDiv.textContent =
+        "Bisher wurden noch keine Auszahlungen an Projekte vorgenommen.";
+    }
     if (ownerPayoutChart) {
       ownerPayoutChart.destroy();
       ownerPayoutChart = null;
     }
+    if (totalDistSpan) totalDistSpan.textContent = "0";
     return;
   }
 
-  // 2a. Liste im Text
-  payoutsDiv.innerHTML = "";
-  const list = document.createElement("ul");
-  list.className = "list-group";
+  // --- 3. aggregate per project & total distributed ---
+  const BN = web3.utils.BN;
 
-  // Aggregiert pro Projekt für das Kreisdiagramm
-  const perProject = {};
+  const perProjectWei = {};        // projectId -> BN(amountWei)
+  let totalDistributedWei = new BN("0");
 
-  for (const ev of events) {
+  for (const ev of payoutEvents) {
     const projectId = ev.returnValues.projectId;
-    const amountWei = web3.utils.toBN(ev.returnValues.amount);
-    const amountEth = web3.utils.fromWei(amountWei, "ether");
+    const amountWei = new BN(ev.returnValues.amount);
 
-    if (!perProject[projectId]) {
-      perProject[projectId] = web3.utils.toBN("0");
+    if (!perProjectWei[projectId]) {
+      perProjectWei[projectId] = new BN("0");
     }
-    perProject[projectId] = perProject[projectId].add(amountWei);
+    perProjectWei[projectId] = perProjectWei[projectId].add(amountWei);
+    totalDistributedWei = totalDistributedWei.add(amountWei);
+  }
 
-    const li = document.createElement("li");
-    li.className = "list-group-item d-flex justify-content-between align-items-center";
-    li.innerHTML = `
-      <span>Project #${projectId}</span>
-      <span>${amountEth} ETH</span>
+  if (totalDistSpan) {
+    const totalEth = web3.utils.fromWei(totalDistributedWei, "ether");
+    totalDistSpan.textContent = totalEth;
+  }
+
+  // --- 4. build table: Project | Recipient | Investor | Amount ---
+  if (payoutsDiv) {
+    payoutsDiv.innerHTML = "";
+
+    const table = document.createElement("table");
+    table.className = "table table-sm align-middle mb-0";
+
+    const thead = document.createElement("thead");
+    thead.innerHTML = `
+      <tr>
+        <th>Project</th>
+        <th>Investor</th>
+        <th class="text-end">Amount (ETH)</th>
+      </tr>
     `;
-    list.appendChild(li);
+
+    const tbody = document.createElement("tbody");
+
+    // cache project names so we don’t call getProject too often
+    const projectNames = {};
+
+    for (const ev of payoutEvents) {
+      const projectId   = ev.returnValues.projectId;
+      const payoutAddr  = ev.returnValues.payoutAddress;
+      const amountWei   = new BN(ev.returnValues.amount);
+      const amountEth   = web3.utils.fromWei(amountWei, "ether");
+
+      // get project name once per id
+      if (!projectNames[projectId]) {
+        try {
+          const p = await registry.methods.getProject(projectId).call();
+          projectNames[projectId] = p.name || `Project ${projectId}`;
+        } catch (err) {
+          console.error("Fehler beim getProject für", projectId, err);
+          projectNames[projectId] = `Project ${projectId}`;
+        }
+      }
+
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>#${projectId} – ${projectNames[projectId]}</td>
+        <td>${labelForInvestor(payoutAddr)}</td>
+        <td class="text-end">${amountEth}</td>
+      `;
+      tbody.appendChild(tr);
+    }
+
+    table.appendChild(thead);
+    table.appendChild(tbody);
+    payoutsDiv.appendChild(table);
   }
 
-  payoutsDiv.appendChild(list);
+  // --- 5. pie chart: total per project ---
+  if (pieCanvas) {
+    const labels = [];
+    const data   = [];
 
-  // 2b. Kreisdiagramm aus den aggregierten Werten
-  if (!pieCanvas) return;
+    for (const [projectId, amtWei] of Object.entries(perProjectWei)) {
+      labels.push("Project " + projectId);
+      data.push(
+        Number(web3.utils.fromWei(amtWei, "ether"))
+      );
+    }
 
-  const labels = [];
-  const data   = [];
+    if (ownerPayoutChart) {
+      ownerPayoutChart.destroy();
+    }
 
-  for (const [projectId, amtWei] of Object.entries(perProject)) {
-    labels.push("Project " + projectId);
-    data.push(Number(web3.utils.fromWei(amtWei, "ether")));
+    const ctx = pieCanvas.getContext("2d");
+    ownerPayoutChart = new Chart(ctx, {
+      type: "pie",
+      data: {
+        labels,
+        datasets: [
+          {
+            data,
+          },
+        ],
+      },
+    });
   }
 
-  if (ownerPayoutChart) {
-    ownerPayoutChart.destroy();
-  }
+  // --- 6. optional: show total fees from FeesPaid events ---
+  // (only if elements exist)
+  if (feesTreasurySpan || feesVerifiersSpan || feesCommunitySpan) {
+    try {
+      const feeEvents = await pool.getPastEvents("FeesPaid", {
+        fromBlock: 0,
+        toBlock: "latest",
+      });
 
-  const ctx = pieCanvas.getContext("2d");
-  ownerPayoutChart = new Chart(ctx, {
-    type: "pie",
-    data: {
-      labels,
-      datasets: [
-        {
-          data,
-        },
-      ],
-    },
-  });
+      let sumTreasury = new BN("0");
+      let sumVer      = new BN("0");
+      let sumComm     = new BN("0");
+
+      for (const fe of feeEvents) {
+        sumTreasury = sumTreasury.add(new BN(fe.returnValues.treasuryAmt));
+        sumVer      = sumVer.add(new BN(fe.returnValues.verifiersAmt));
+        sumComm     = sumComm.add(new BN(fe.returnValues.communityAmt));
+      }
+
+      if (feesTreasurySpan) {
+        feesTreasurySpan.textContent =
+          web3.utils.fromWei(sumTreasury, "ether");
+      }
+      if (feesVerifiersSpan) {
+        feesVerifiersSpan.textContent =
+          web3.utils.fromWei(sumVer, "ether");
+      }
+      if (feesCommunitySpan) {
+        feesCommunitySpan.textContent =
+          web3.utils.fromWei(sumComm, "ether");
+      }
+    } catch (err) {
+      console.error("Fehler beim Laden der FeesPaid-Events:", err);
+    }
+  }
 }
 
 
@@ -925,11 +1020,15 @@ async function ownerDistribute() {
 
     console.log("Distribution:", tx);
     showMessage("success", "Distribution completed.");
+
+    // ⬅️ UI aktualisieren:
+    await refreshOwnerFundingOverview();
   } catch (err) {
     console.error("Error in ownerDistribute:", err);
     showMessage("danger", "Error during distribution. See console for details.");
   }
 }
+
 
 /* ---------- CREATOR-FUNKTION ---------- */
 
@@ -1208,9 +1307,14 @@ async function initDropdowns() {
 
     await loadAccounts(); // lädt owner, verifier, creator, investor
      const didInput = document.getElementById("projDid");
-    if (didInput) {
-      didInput.value = `did:eth:${creator}`;
-    }
+      if (didInput) {
+        didInput.value = `did:eth:${creator}`;
+      }
+      
+      const creatorInput = document.getElementById("projCreator");
+      if (creatorInput) {
+        creatorInput.value = creator; // full address of the project creator
+      }
     await ensureVerifiersOnChain();  
 
     populateOwnerVerifierSelect();

@@ -68,17 +68,25 @@
             Simulate Quarter Distribution
           </button>
 
-          <h5 class="card-title mt-4">4. Pool & Projekt-Auszahlungen</h5>
-          <p class="small text-muted">
-            Aktueller Ether-Bestand im FundingPool:
+          <h4 class="card-title">4. Pool & Project Payouts</h4>
+          <p class="text-muted mb-1">
+            Current Ether balance in FundingPool:
             <strong><span id="ownerPoolBalance">0</span> ETH</strong>
           </p>
+          <p class="text-muted mb-1">
+            Total distributed to projects:
+            <strong><span id="ownerTotalDistributed">0</span> ETH</strong>
+          </p>
+          <p class="text-muted mb-3">
+            Fees paid so far –
+            Treasury: <strong><span id="ownerFeesTreasury">0</span> ETH</strong>,
+            Verifiers: <strong><span id="ownerFeesVerifiers">0</span> ETH</strong>,
+            Community: <strong><span id="ownerFeesCommunity">0</span> ETH</strong>.
+          </p>
 
-          <div id="ownerPayouts" class="small mb-3">
-            Noch keine Auszahlungen geladen.
-          </div>
+          <div id="ownerPayouts" class="mb-3"></div>
 
-          <canvas id="ownerPayoutPie" height="180"></canvas>
+          <canvas id="ownerPayoutPie" height="200"></canvas>
 
           
 
