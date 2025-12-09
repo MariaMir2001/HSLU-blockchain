@@ -2,7 +2,6 @@ const { ethers } = require("hardhat");
 const { keccak256 } = ethers.utils;
 
 async function main() {
-    // Deploy ProjectRegistry
     const ProjectRegistry = await ethers.getContractFactory("ProjectRegistry");
     const projectRegistry = await ProjectRegistry.deploy();
     await projectRegistry.deployed();
@@ -15,7 +14,6 @@ async function main() {
     console.log("FundingPool deployed to:", fundingPool.address);
 
 
-      // 4) Zertifikat erfährt, wer der FundingPool ist
   const tx = await certificate.setFundingPool(fundingPool.address);
   await tx.wait();
   console.log("FundingPool set as certificate.fundingPool");
