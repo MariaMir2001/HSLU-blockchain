@@ -1179,9 +1179,9 @@ async function investorLoadCertificates() {
 
 
 
-/* ---------- OWNER-FUNKTIONEN ---------- */
 
-// Owner: Verifier setzen
+
+// Owner setting verifier
 function shortAddress(addr) {
   if (!addr) return "";
   return addr.slice(0, 6) + "…" + addr.slice(-4);
@@ -1196,7 +1196,7 @@ function labelForInvestor(addr) {
       return shortAddress(addr);;
     }
   }
-  return shortAddress(addr); // show address instead of "—"
+  return shortAddress(addr); 
 }
 
 
@@ -1211,10 +1211,10 @@ async function refreshOwnerFundingOverview() {
   const payoutsDiv         = document.getElementById("ownerPayouts");
   const pieCanvas          = document.getElementById("ownerPayoutPie");
 
-  // if we’re not on the owner page, silently do nothing
+
   if (!balanceSpan && !payoutsDiv && !pieCanvas && !totalDistSpan) return;
 
-  // --- 1. current pool balance ---
+  // current pool balance
   try {
     const poolBalanceWei = await pool.methods.poolBalance().call();
     const poolBalanceEth = web3.utils.fromWei(poolBalanceWei, "ether");
@@ -1224,7 +1224,7 @@ async function refreshOwnerFundingOverview() {
     if (balanceSpan) balanceSpan.textContent = "?";
   }
 
-  // --- 2. load all ProjectPayout events ---
+  // load all ProjectPayout events
   if (!payoutsDiv && !pieCanvas && !totalDistSpan) return;
 
   let payoutEvents;
@@ -1255,7 +1255,7 @@ async function refreshOwnerFundingOverview() {
     return;
   }
 
-  // --- 3. aggregate per project & total distributed ---
+
   const BN = web3.utils.BN;
 
   const perProjectWei = {};        // projectId -> BN(amountWei)
@@ -1277,7 +1277,7 @@ async function refreshOwnerFundingOverview() {
     totalDistSpan.textContent = totalEth;
   }
 
-  // --- 4. build table: Project | Recipient | Investor | Amount ---
+  //  build table
   if (payoutsDiv) {
     payoutsDiv.innerHTML = "";
 
@@ -1295,7 +1295,7 @@ async function refreshOwnerFundingOverview() {
 
     const tbody = document.createElement("tbody");
 
-    // cache project names so we don’t call getProject too often
+    // cache project names so it is not called to often
     const projectNames = {};
 
     for (const ev of payoutEvents) {
@@ -1329,7 +1329,7 @@ async function refreshOwnerFundingOverview() {
     payoutsDiv.appendChild(table);
   }
 
-  // --- 5. pie chart: total per project ---
+  // pie chart: total per project
   if (pieCanvas) {
     const labels = [];
     const data   = [];
@@ -1359,7 +1359,7 @@ async function refreshOwnerFundingOverview() {
     });
   }
 
-  // --- 6. optional: show total fees from FeesPaid events ---
+  //  show total fees from FeesPaid events
   // (only if elements exist)
   if (feesTreasurySpan || feesVerifiersSpan || feesCommunitySpan) {
     try {
@@ -1423,7 +1423,7 @@ async function ownerAddVerifier() {
 }
 }
 
-// Owner: Anzahl benötigter Approvals setzen
+// Owner: Amount 
 async function ownerSetRequiredApprovals() {
   await loadAccounts();
   const n = 5; // immer 5 Verifier nötig
@@ -1458,7 +1458,7 @@ async function ownerDistribute() {
     console.log("Distribution:", tx);
     showMessage("success", "Distribution completed.");
 
-    // ⬅️ UI aktualisieren:
+    // UI aktualisung
     await refreshOwnerFundingOverview();
   } catch (err) {
     console.error("Error in ownerDistribute:", err);
@@ -1469,13 +1469,11 @@ async function ownerDistribute() {
 
 /* ---------- CREATOR-FUNKTION ---------- */
 
-// Projekt-Ersteller: Projekt anlegen
-// Projekt-Ersteller: Projekt anlegen
-const ISSUER_ID = "issuer1";                  // muss zu deinen key-Dateien passen
+const ISSUER_ID = "issuer1";                 
 const SSI_ISSUER_URL = "http://localhost:9001/issue-credential";
 
 async function creatorCreateProject() {
-  await loadAccounts();                       // lädt z.B. creator = accounts[2]
+  await loadAccounts();                 
   const from = creator;
 
   const name   = document.getElementById("projName").value.trim();
@@ -1488,10 +1486,10 @@ async function creatorCreateProject() {
   }
 
   try {
-    // 1. DID erzeugen
+    // create DID
     const did = `did:eth:${from}`;   // z.B. did:eth:0xabc123...
 
-    // 2. Credential-Inhalt bauen
+    // Credential-Inhalt
     const credentialPayload = {
       projectName:     name,
       payoutAddress:   payout,
@@ -1499,7 +1497,6 @@ async function creatorCreateProject() {
       projectCreator:  from
     };
 
-// 3. Credential beim Issuer anfordern
 const res = await fetch(SSI_ISSUER_URL, {
   method: "POST",
   headers: { "Content-Type": "application/json" },
@@ -1518,23 +1515,22 @@ if (!res.ok) {
   return;
 }
 
-// ⬅️ SEHR WICHTIG:
+
 const issued = await res.json();
 console.log("Issued credential:", issued);
 
-// 4. Unsere on-chain Referenz
+// on-chain reference
 const ssiRef = issued.documentHash;
 if (!ssiRef) {
   showMessage("danger", "Issuer did not return a documentHash.");
   return;
 }
 
-// 5. Credential im Browser speichern (Demo)
+
 const stored = JSON.parse(localStorage.getItem("vcmCredentials") || "{}");
 stored[ssiRef] = issued;
 localStorage.setItem("vcmCredentials", JSON.stringify(stored));
 
-// 6. Projekt im Smart Contract anlegen
 const tx = await registry.methods
   .createProject(name, payout, ipfs, ssiRef)
   .send({ from });
@@ -1553,9 +1549,9 @@ const tx = await registry.methods
 
 
 
-/* ---------- VERIFIER-FUNKTION ---------- */
+//verifier project approval
 
-// Verifier: Projekt approven
+
 async function verifierApproveProject() {
   await loadAccounts();
 
@@ -1576,10 +1572,10 @@ async function verifierApproveProject() {
   }
 }
 
-/* ---------- INVESTOR-FUNKTION ---------- */
+// investor functions
 
-// Investor: Deposit in den FundingPool
-// Investor: Deposit in den FundingPool
+// Investor: Deposit in the funding pool
+
 async function investorDeposit() {
   await loadAccounts();
 
@@ -1611,7 +1607,7 @@ async function investorDeposit() {
 }
 
 
-const SSI_VERIFIER_URL = "http://localhost:9002/verify-credential"; // wie in deinem SSI-Template
+const SSI_VERIFIER_URL = "http://localhost:9002/verify-credential";
 
 async function verifierVerifyAndApprove() {
   await loadAccounts();
@@ -1624,27 +1620,27 @@ async function verifierVerifyAndApprove() {
   const id = parseInt(idStr, 10);
 
   try {
-    // --- 0. Adresse des Verifiers ---
+  
     const from = getCurrentVerifierAddress();
     if (!from) {
       showMessage("warning", "No verifier address selected.");
       return;
     }
 
-    // --- 1. Prüfen, ob Verifier dieses Projekt schon approved hat ---
+
     const already = await registry.methods.hasApproved(id, from).call();
     if (already) {
       showMessage("info", "You have already approved this project.");
-      return; // KEIN Transaktionsversuch → kein Revert
+      return; 
     }
 
-    // --- 2. Projekt-Status prüfen ---
+  
     const p = await registry.methods.getProject(id).call();
-    const status = Number(p.status);      // 0 = Pending
+    const status = Number(p.status);     
     const approvals = Number(p.approvalsCount);
     const ssiRef = p.ssiDidHash;
 
-    if (status !== 0) { // nicht Pending
+    if (status !== 0) { 
       showMessage(
         "info",
         "This project is no longer in the Pending status (already published or ended)."
@@ -1657,7 +1653,7 @@ async function verifierVerifyAndApprove() {
       return;
     }
 
-    // --- 3. SSI Credential holen & prüfen (dein bestehender Code) ---
+  
     const stored = JSON.parse(localStorage.getItem("vcmCredentials") || "{}");
     const credential = stored[ssiRef];
 
@@ -1695,7 +1691,7 @@ async function verifierVerifyAndApprove() {
     console.log("Project approved:", tx);
     showMessage("success", "Project is SSI-validated and approved on-chain!");
 
-    // Update dropdown to immediately reflect approval count/checkmarks
+    // Update dropdown to immediately reflect approval count
     await populateVerifierProjectSelect();
 
   } catch (err) {
@@ -1708,41 +1704,39 @@ async function verifierVerifyAndApprove() {
 function getCurrentVerifierAddress() {
   const sel = document.getElementById("verifierAddress");
   if (sel && sel.value) {
-    return sel.value;            // Adresse aus dem Dropdown
+    return sel.value;            
   }
 
-  // Fallback: erster Verifier aus dem Array
+
   if (verifiers && verifiers.length > 0) {
     return verifiers[0];
   }
 
-  return null;                    // nichts gefunden
+  return null;                
 }
 
 function getCurrentInvestorAddress() {
   const sel = document.getElementById("investorAddress");
   if (sel && sel.value) {
-    return sel.value;            // Adresse aus dem Investor-Dropdown
+    return sel.value;         
   }
 
-  // Fallback: erster Investor aus dem Array
+
   if (investors && investors.length > 0) {
     return investors[0];
   }
 
-  return null;                    // nichts gefunden
+  return null;                   
 }
 
 
 
 
 
-// -------- UI-Initialisierung (Dropdowns) --------
-
 async function initDropdowns() {
   try {
 
-    await loadAccounts(); // lädt owner, verifier, creator, investor
+    await loadAccounts(); // owner, verifier, creator, investor
      const didInput = document.getElementById("projDid");
       if (didInput) {
         didInput.value = `did:eth:${creator}`;
@@ -1768,7 +1762,7 @@ async function initDropdowns() {
   }
 }
 
-// Owner: Verifier-Adresse
+
 function populateOwnerVerifierSelect() {
   const sel = document.getElementById("ownerVerifierAddress");
   if (!sel || !accounts) return;
@@ -1782,7 +1776,7 @@ function populateOwnerVerifierSelect() {
   sel.appendChild(ph);
 
   accounts.forEach((addr, idx) => {
-    if (idx === 0) return; // Owner selbst nicht anbieten
+    if (idx === 0) return; 
 
     const opt = document.createElement("option");
     let role = `Account ${idx}`;
@@ -1800,7 +1794,7 @@ function populateOwnerVerifierSelect() {
   });
 }
 
-// Owner: Required Approvals 1..(Anzahl Accounts-1)
+
 function populateOwnerApprovalsSelect() {
   const sel = document.getElementById("ownerRequiredApprovals");
   if (!sel) return;
@@ -1812,11 +1806,11 @@ function populateOwnerApprovalsSelect() {
   sel.appendChild(opt);
 
   sel.value = "5";
-  sel.disabled = true; // Fixwert 5, nicht änderbar
+  sel.disabled = true; 
 }
 
 
-// Creator: Payout-Adresse (alle außer Creator selbst)
+
 function populateCreatorPayoutSelect() {
   const sel = document.getElementById("projPayout");
   if (!sel || !accounts) return;
@@ -1830,7 +1824,7 @@ function populateCreatorPayoutSelect() {
   sel.appendChild(ph);
 
   accounts.forEach((addr, idx) => {
-    if (idx === 2) return; // Creator selbst nicht
+    if (idx === 2) return; 
 
     const opt = document.createElement("option");
     let role = `Account ${idx}`;
@@ -1840,12 +1834,12 @@ function populateCreatorPayoutSelect() {
 
     opt.value = addr;
     opt.textContent = `${role} – ${addr}`;
-    if (idx === 3) opt.selected = true; // Investor als Standard
+    if (idx === 3) opt.selected = true; 
     sel.appendChild(opt);
   });
 }
 
-// Verifier: Projekte aus dem Registry-Contract
+
 async function populateVerifierProjectSelect() {
   const sel = document.getElementById("verifierProjectId");
   if (!sel) return;
@@ -1885,7 +1879,7 @@ async function populateVerifierProjectSelect() {
 }
 
 
-// Verifier-Dashboard: Auswahl der Verifier-Adresse
+
 function populateVerifierAddressSelect() {
   const sel = document.getElementById("verifierAddress");
   if (!sel || !verifiers.length) return;
@@ -1906,7 +1900,7 @@ function populateVerifierAddressSelect() {
   });
 }
 
-// Investor-Dashboard: Auswahl der Investor-Adresse
+
 function populateInvestorAddressSelect() {
   const sel = document.getElementById("investorAddress");
   if (!sel || !investors.length) return;
@@ -1928,7 +1922,7 @@ function populateInvestorAddressSelect() {
 }
 
 
-// Registriert alle verifiers[] im Smart Contract (nur wenn noch nicht gesetzt)
+
 async function ensureVerifiersOnChain() {
   await loadAccounts();
 
@@ -1938,7 +1932,7 @@ async function ensureVerifiersOnChain() {
       console.log("Adding verifier on-chain:", addr);
       await registry.methods
         .addVerifier(addr)
-        .send({ from: owner });  // nur Owner darf addVerifier
+        .send({ from: owner }); 
     } else {
       console.log("Already verifier:", addr);
     }
@@ -1948,7 +1942,7 @@ async function ensureVerifiersOnChain() {
 
 
 
-// Diese Zeile ganz am Ende von vcm.js:
+
 initDropdowns().catch(console.error);
 
 
@@ -1958,7 +1952,6 @@ initDropdowns().catch(console.error);
 function showMessage(type, text, targetId = "verifierMessages") {
   const container = document.getElementById(targetId);
   if (!container) {
-    // Fallback, falls div vergessen wurde
     showMessage("danger", text);
     return;
   }
@@ -1973,14 +1966,14 @@ function showMessage(type, text, targetId = "verifierMessages") {
 
   container.appendChild(wrapper);
 
-  // Alert nach 5 Sekunden automatisch schließen
+
   setTimeout(() => {
     const alertInstance = bootstrap.Alert.getOrCreateInstance(wrapper);
     alertInstance.close();
   }, 5000);
 }
 
-// ---- IPFS Upload (einfaches HTTP-API) ----
+
 
 const IPFS_ADD_URL = "http://localhost:5001/api/v0/add"; // ggf. anpassen
 
@@ -1997,15 +1990,14 @@ async function uploadFileToIpfs(file) {
     throw new Error("IPFS HTTP error: " + response.status);
   }
 
-  // go-ipfs liefert NDJSON (eine oder mehrere JSON-Zeilen)
+ 
   const text = await response.text();
   const firstLine = text.trim().split("\n")[0];
   const data = JSON.parse(firstLine);
 
-  // typische Antwort: { Name, Hash, Size }
+
   if (data.Hash) return data.Hash;
 
-  // Falls andere Struktur:
   if (data.cid) return data.cid.toString();
   if (data.Cid && data.Cid["/"]) return data.Cid["/"];
 
@@ -2016,7 +2008,7 @@ function initIpfsUpload() {
   const fileInput = document.getElementById("uploadFile");
   const ipfsInput = document.getElementById("projIpfs");
 
-  // Wenn wir nicht auf der Creator-Seite sind, einfach nichts tun
+
   if (!fileInput || !ipfsInput) return;
 
   fileInput.addEventListener("change", async (e) => {
@@ -2048,7 +2040,7 @@ function initIpfsUpload() {
 function downloadCertificatePdf(cert) {
   const { jsPDF } = window.jspdf;
 
-  // A4 hochkant
+ 
   const doc = new jsPDF({
     orientation: "portrait",
     unit: "mm",
@@ -2057,8 +2049,8 @@ function downloadCertificatePdf(cert) {
 
   const pageWidth = doc.internal.pageSize.getWidth();
 
-  // --- Header-Balken ---
-  doc.setFillColor(34, 139, 34); // dunkelgrün
+ 
+  doc.setFillColor(34, 139, 34); 
   doc.rect(0, 0, pageWidth, 30, "F");
 
   doc.setTextColor(255, 255, 255);
@@ -2068,14 +2060,13 @@ function downloadCertificatePdf(cert) {
     align: "center",
   });
 
-  // zurück zu normalem Text
   doc.setTextColor(0, 0, 0);
   doc.setFont("helvetica", "normal");
   doc.setFontSize(12);
 
   let y = 45;
 
-  // --- Abschnittstitel ---
+
   doc.setFont("helvetica", "bold");
   doc.text("Certificate Details", 20, y);
   doc.setLineWidth(0.3);
@@ -2083,21 +2074,19 @@ function downloadCertificatePdf(cert) {
   y += 10;
   doc.setFont("helvetica", "normal");
 
-  // Werte sicher parsen
   const amountEth = parseFloat(cert.amountEth);
-  const offsetKg = amountEth * 100; // dein Faktor für CO2
+  const offsetKg = amountEth * 100; 
   const amountStr = isNaN(amountEth) ? cert.amountEth : amountEth.toFixed(4);
   const offsetStr = isNaN(offsetKg) ? "-" : offsetKg.toFixed(2);
 
-  // --- Detailzeilen ---
+ 
   doc.text(`Token ID: ${cert.tokenId}`, 20, y); y += 8;
   doc.text(`Investor: ${cert.owner}`, 20, y); y += 8;
   doc.text(`Project: ${cert.projectLabel}`, 20, y); y += 8;
   doc.text(`Amount: ${amountStr} ETH`, 20, y); y += 8;
-  doc.text(`Offset: ${offsetStr} kg CO2`, 20, y); y += 8;  // KEIN Sonderzeichen
+  doc.text(`Offset: ${offsetStr} kg CO2`, 20, y); y += 8; 
   doc.text(`Date: ${cert.date}`, 20, y); y += 20;
 
-  // --- Erklärungstext / Footer ---
   doc.setFont("helvetica", "italic");
   const disclaimer =
     "This certificate confirms the contribution of funds to the VCM Funding Pool. " +
@@ -2106,7 +2095,6 @@ function downloadCertificatePdf(cert) {
 
   doc.text(disclaimer, 20, y, { maxWidth: pageWidth - 40 });
 
-  // Optional: kleine Footer-Zeile mit Contract / Chain
   if (cert.contractAddress && cert.chainName) {
     doc.setFontSize(9);
     doc.setFont("helvetica", "normal");
@@ -2121,9 +2109,8 @@ function downloadCertificatePdf(cert) {
 }
 
 
-// ---- IPFS-Dokument im Browser anzeigen ----
 
-const IPFS_GATEWAY_URL = "http://localhost:8080/ipfs/"; // dein lokaler Gateway
+const IPFS_GATEWAY_URL = "http://localhost:8080/ipfs/"; 
 
 async function verifierOpenProjectDocument() {
   await loadAccounts();
@@ -2145,7 +2132,7 @@ async function verifierOpenProjectDocument() {
       return;
     }
 
-    // Open new tab/window with the file
+    
     const url = IPFS_GATEWAY_URL + hash;
     window.open(url, "_blank");
   } catch (err) {
