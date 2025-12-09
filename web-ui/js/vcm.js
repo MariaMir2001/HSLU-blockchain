@@ -1,6 +1,11 @@
-const registryAddress = "0xF32D39ff9f6Aa7a7A64d7a4F00a54826Ef791a55";   // aus logs
+/*const registryAddress = "0xF32D39ff9f6Aa7a7A64d7a4F00a54826Ef791a55";   // aus logs
 const fundingPoolAddress = "0x99dBE4AEa58E518C50a1c04aE9b48C9F6354612f";
 const certificateAddress = "0xd6e1afe5cA8D00A2EFC01B89997abE2De47fdfAf";
+*/
+const registryAddress    = "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707";
+const fundingPoolAddress = "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853";
+const certificateAddress = "0x0165878A594ca255338adfa4d48449f69242Eb8F";
+
 
 const registryAbi = [
     {
